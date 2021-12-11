@@ -1,0 +1,5 @@
+# The data in the file assignment_2_dataset_1.csv are from an experiment with 96 participants. We
+# measured how quickly people could pronounce a word that was presented to them. Words were presented
+# either normally (Condition A) or were visually degraded (Condition B). This was a between participants
+# factor of visual quality with 2 levels. Conduct an ANOVA to determine and interpret the effect of visual
+# quality on response time.
