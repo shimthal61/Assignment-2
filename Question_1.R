@@ -15,13 +15,16 @@ head(q1_data)
 #Summarising our data
 q1_data %>% 
   group_by(visual_quality) %>% 
-  summarise(mean = mean(response_time), sd = sd(response_time))
+  summarise(mean = mean(response_time), sd = sd(response_time)) %>% 
+  arrange(mean)
+
+#It appears at a glance that participants in the normal condition has a faster response time.
 
 #Data Visualisation
 # Use the set.seed function when running simulations to ensure all results, figures, etc are reproducible.
 set.seed(42)
 q1_data %>% 
-  ggplot(aes(x = visual_quality, y = response_time, colour = visual_quality)) +
+  ggplot(aes(x = fct_reorder(visual_quality, response_time), y = response_time, colour = visual_quality)) +
   geom_violin(width = 0.3) +
   geom_point(position = position_jitter(width = 0.15, seed = 42)) +
   theme_minimal() +
@@ -33,5 +36,12 @@ q1_data %>%
   theme(text = element_text(size = 13))
 
 
-model1 <- aov_4(response_time ~ visual_quality + (1 | participant), data = q1_data)  
+#F value is prety large and p < 0.001. However, we don't know  what's driving the difference yet
+model1 <- aov_4(response_time ~ visual_quality + (1 | participant), data = q1_data)
 
+summary(model1)
+
+# We want to use bonferroni pairwise comparions because... (refer back to vid in workshop)
+emmeans(model1, pairwise ~ visual_quality, adjust = "bonferroni")
+
+# Participants performed significantly better then the degraded group. 
