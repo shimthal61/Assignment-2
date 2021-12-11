@@ -18,3 +18,16 @@ q1_data %>%
   summarise(mean = mean(response_time), sd = sd(response_time))
 
 #Data Visualisation
+q1_data %>% 
+  ggplot(aes(x = visual_quality, y = response_time, colour = visual_quality)) +
+  geom_violin(width = 0.3) +
+  geom_jitter(width = 0.1, alpha = 0.5) +
+  theme_minimal() +
+  stat_summary(fun.data = "mean_cl_boot", colour = "black") +
+  guides(colour = 'none') +
+  labs(title = "Examining the effect of visual quality on response times",
+       x = "Visual Quality",
+       y = "Reaction Time (ms)") +
+  theme(text = element_text(size = 13))
+  
+        
