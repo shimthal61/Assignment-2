@@ -12,6 +12,9 @@ q1_data <- raw_data %>%
 
 head(q1_data)
 
+#Doesn't look like there is any missing data
+vis_miss(q1_data)
+
 #Summarising our data
 q1_data %>% 
   group_by(visual_quality) %>% 

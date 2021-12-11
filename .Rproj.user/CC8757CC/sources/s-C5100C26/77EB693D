@@ -1,27 +1,27 @@
 {
-    "id": "68475254",
-    "path": "~/R Projects/Assignment-2/Question_1.R",
-    "project_path": "Question_1.R",
+    "id": "77EB693D",
+    "path": "~/R Projects/Assignment-2/packages.R",
+    "project_path": "packages.R",
     "type": "r_source",
-    "hash": "476046257",
+    "hash": "0",
     "contents": "",
     "dirty": false,
-    "created": 1639245074664.0,
+    "created": 1639246475017.0,
     "source_on_save": false,
-    "relative_order": 2,
+    "relative_order": 1,
     "properties": {
         "tempName": "Untitled1",
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "49,71",
-        "scrollLine": "18"
+        "cursorPosition": "4,20",
+        "scrollLine": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 1639252498,
+    "lastKnownWriteTime": 1639252414,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1639252498868,
+    "last_content_update": 1639252414378,
     "read_only": false,
     "read_only_alternatives": []
 }
