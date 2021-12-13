@@ -12,8 +12,7 @@ quality on response time.
 Q2 The data in the file assignment_2_dataset_2.csv are the same as in assignment_2_dataset1.csv
 except now we have a measure of caffeine consumption (in cups of coffee) for each individual. (a) Conduct
 the appropriate ANOVA to determine and interpret the effect of visual quality on response time when taking
-account of caffeine consumption. (b) Use the lm() function to build the equivalent linear model and interpret
-the output (comparing it to the ANOVA output).
+account of caffeine consumption. (b) Use the lm() function to build the equivalent linear model and interpret the output (comparing it to the ANOVA output).
 
 Q3 The data in the file assignment_2_dataset_3.csv are from a 2 x 2 repeated measures design. 148
 participants responded to a target image that was either positive or negative in valence. The target was

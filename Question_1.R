@@ -1,6 +1,6 @@
-raw_data <- read_csv("assignment_2_dataset_1.csv")
+raw_data_1 <- read_csv("assignment_2_dataset_1.csv")
 
-head(raw_data)
+head(raw_data_1)
 
 #Tidying our data
 q1_data <- raw_data %>%
@@ -39,7 +39,7 @@ q1_data %>%
   theme(text = element_text(size = 13))
 
 
-#F value is prety large and p < 0.001. However, we don't know  what's driving the difference yet
+#F value is pretty large and p < 0.001. However, we don't know  what's driving the difference yet
 model1 <- aov_4(response_time ~ visual_quality + (1 | participant), data = q1_data)
 
 summary(model1)
