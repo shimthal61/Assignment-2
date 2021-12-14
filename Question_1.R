@@ -42,7 +42,9 @@ q1_data %>%
 #F value is pretty large and p < 0.001. However, we don't know  what's driving the difference yet
 model1 <- aov_4(response_time ~ visual_quality + (1 | participant), data = q1_data)
 
-summary(model1)
+anova(model1)
+
+# WE DON'T NEED TO DO PAIRWISE AS WE ONLY HAVE 2 LEVELS
 
 # We want to use bonferroni pairwise comparions because... (refer back to vid in workshop)
 emmeans(model1, pairwise ~ visual_quality, adjust = "bonferroni")
