@@ -3,7 +3,7 @@ raw_data_1 <- read_csv("assignment_2_dataset_1.csv")
 head(raw_data_1)
 
 #Tidying our data
-q1_data <- raw_data %>%
+q1_data <- raw_data_1 %>%
   rename(visual_quality = condition) %>% 
   mutate(visual_quality = recode(visual_quality,
                             "condition_a" = "Normal",
@@ -35,7 +35,7 @@ q1_data %>%
   guides(colour = 'none') +
   labs(title = "Examining the effect of visual quality on response times",
        x = "Visual Quality",
-       y = "Reaction Time (ms)") +
+       y = "Response Time (ms)") +
   theme(text = element_text(size = 13))
 
 
