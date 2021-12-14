@@ -47,6 +47,8 @@ q3_data %>%
   labs(y = "Reaction Time (ms)") +
   theme(text = element_text(size = 13))
 
+#This plot is wank (DO NOT SAY WANK IN MARKDOWN) so better to make an interaction plot
+
 labels <- descriptive_stats %>%
   filter(Target == "Positive") %>% 
   mutate(label = case_when(Prime == "Negative" ~ "Negative Prime",
@@ -63,8 +65,10 @@ descriptive_stats %>%
             nudge_y = 1) +
   guides(colour = 'none') +
   scale_y_continuous(breaks = seq(1545, 1570, by = 5),
-                     limits = c(1545, 1570),
-                     expand = c(0, 0)) +
+                     limits = c(1545, 1570)) +
   theme_minimal()
-  
+
+# This graph is much better - looks like there is an interaction
+
+
 
