@@ -39,7 +39,8 @@ model_covariate <- aov_4(response_time ~ caffeine + (1 | participant), data = q2
 
 anova(model_covariate)
 
-model_ancova <- aov_4(response_time ~ caffeine + visual_quality + (1 | participant), data = q2_data, factorize = FALSE)
+model_ancova <- aov_4(response_time ~ caffeine + visual_quality + (1 | participant),
+                      data = q2_data, factorize = FALSE)
 
 anova(model_ancova)
 
@@ -50,4 +51,60 @@ anova(model_ancova)
 # We need to perform pairwise to take into consideration the influence of caffeine on our group
 emmeans(model_ancova, pairwise ~ visual_quality)
  
+# We are now going to look at our ANOVA and ANCOVA as special cases of regression
 
+# First, we need to use dummy coding for the levels of our experimental factor
+
+
+# We want 'normal' visual quality to be our default reference level. When we build our linear model,
+# the intercept of the line we're building is going to correspond to the mean of our 'normal' group
+contrasts(q2_data$visual_quality)
+
+# Our contrasts are already set so that 'normal' is our baseline - no need to change the contrasts!
+
+# Response time = Intercept + degraded
+
+model_lm <- lm(response_time ~ visual_quality, data = q2_data)
+
+model_lm
+
+# The intercept is the average for our 'normal' group and our degraded coefficient. We can use these coefficients 
+# to calculate the averages for our two experimental groups. 
+
+# We can work out the mean of reaction time in our degraded condition
+print(1002.22 + 18.09)
+
+#The means are the same as with our ANOVA!
+
+# Now we're going to perform our ANCOVA as a special case of regression
+
+# Adjusted means are below:
+# Normal = 1005
+# Degraded = 1018
+
+model_lm_covariate <- lm(response_time ~ caffeine + visual_quality, data = q2_data)
+
+model_lm_covariate
+
+mean(q2_data$caffeine)
+
+# The adjusted mean for our normal group:
+print(998.564 + (2.469*2.552083))
+
+# The adjusted mean for our degraded group:
+print(998.564 + (2.469*2.552083) + 12.791)
+
+# These are the same as the means when using the emmeans function
+
+# Now we want to standardise to increase the interpretation of the coefficients in our linear model by centering our covariates
+
+my_scaled_data <- q2_data %>% 
+  mutate(centred_caffeine = scale(caffeine))
+
+plot(density(my_scaled_data$caffeine))
+
+plot(density(my_scaled_data$centred_caffeine))  
+
+model_ancova_centred <- lm(response_time ~ centred_caffeine + visual_quality, data = my_scaled_data)
+
+model_ancova_centred      
