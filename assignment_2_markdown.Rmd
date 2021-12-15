@@ -47,25 +47,28 @@ raw_data_1 <- read_csv("assignment_2_dataset_1.csv")
 head(raw_data_1)
 ```
 
+
 ## Data Wrangling
 
 Our Visual Quality variable is currently just named "condition" - let's change it using the `rename()` function. Within the `mutate()` argument, we can also modify it so it's coded as a factor. Finally, our conditions are not labelled meaningfully and could lead to confusion further down the line. We can recode them using the `recode` command:
 
 ```{r, message = FALSE}
-q1_data <- raw_data_1 %>%
+q1_data_tidied <- raw_data_1 %>%
   rename(visual_quality = condition) %>% 
   mutate(visual_quality = recode(visual_quality,
                             "condition_a" = "Normal",
                             "condition_b" = "Degraded")) %>% 
   mutate(visual_quality = factor(visual_quality))
-head(q1_data)
+head(q1_data_tidied)
 ```
+
 
 We can check to see if we have missing data somewhere in our dataset. Using the package `{visdat}`, we can visualise our dataset using the `vis_dat()` function, which in turn will let us know if we have any missing data:
 
 ```{r}
-vis_miss(q1_data)
+vis_miss(q1_data_tidied)
 ```
+
 
 It looks like all the data is present - no need to use the `na.rm = TRUE` function. Let's move on to generating summary statistics.
 
@@ -74,11 +77,12 @@ It looks like all the data is present - no need to use the `na.rm = TRUE` functi
 We'll first utilise the `group_by()` function to gather our visual-quality variable, then `summarise()` to create a new table comprising of response time mean and standard deviation. The data can be arranged from the fastest mean response time to the slowest using the `arrange()` function:
 
 ```{r, message = FALSE}
-q1_data %>% 
+q1_data_tidied %>% 
   group_by(visual_quality) %>% 
   summarise(mean = mean(response_time), sd = sd(response_time)) %>% 
   arrange(mean)
 ```
+
 
 At a glance, it looks as though participants who were presented a word with normal visual quality were faster at pronouncing the word than those who were presented with a word with degraded quality. At this stage, we can create some data visualisations to better convey our data.
 
@@ -90,6 +94,7 @@ In this visualisation, we're jittering the data points, meaning that every time 
 set.seed(42)
 ```
 
+
 To be able to manipulate the font family, we first need to load in a font family from [Google Fonts](https://fonts.google.com). I decided to pick the 'Lato' Font, as its larger character height lends itself to easier readibility at small sizes. Let's read this font into R using the `font_add_google()` command and tell showtext to automatically render the text:
 
 ```{r}
@@ -97,10 +102,11 @@ font_add_google("Lato") %>%
   showtext_auto()
 ```
 
-Next, we can build a visualisation by plotting the raw data points using the `geom_point` function, and the shape of the distribution for each condition using the `geom_violin()` function. I used the `fct_relevel()` function to reorder the labels on the x-axis so that our 'normal' condition (the baseline) is on the left most side. We have also added some summary data in the form of the Mean and Confidence Intervals around the mean using the `stat_summary()` function. Finally, we can dictate the y-axis breaks within the `scale_y_continuous()` function, and change the font using within the `theme()` argument:
+
+Next, we can build a visualisation by plotting the raw data points using the `geom_point` function, and the shape of the distribution for each condition using the `geom_violin()` function. By default, R will order the conditions alphabetically, so I used the `fct_relevel()` function to reorder the labels on the x-axis so that our 'normal' condition (the baseline) is on the left most side. We have also added some summary data in the form of the Mean and Confidence Intervals around the mean using the `stat_summary()` function. Finally, we can dictate the y-axis breaks within the `scale_y_continuous()` function, and change the text font and size within the `theme()` argument:
 
 ```{r, message = FALSE, warning = FALSE}
-q1_data %>% 
+q1_data_tidied %>% 
   mutate(visual_quality = fct_relevel(visual_quality, "Normal", "Degraded")) %>% 
   ggplot(aes(x = visual_quality, y = response_time, colour = visual_quality)) +
   geom_violin(width = 0.3) +
@@ -115,3 +121,24 @@ q1_data %>%
        y = "Response Time (ms)") +
   theme(text = element_text(family = "Lato", size = 13))
 ```
+
+
+## Building our ANOVA Model
+
+Let's now build our model using the `aov_4()` function in the `{afex}` package. Within this package, the syntax for ANOVA models is: `aov_4(DV ~ IV + (1 | participant), data = q1_data_tidied)`. The `~` symbol translates to 'predicted by', and takes into account our random effect. We need to specify what data we are using in our model using `data = q1_data_tidied`. Finally, we map the output of the ANOVA result onto a variable I've called `between_anova`. This means that the ANOVA results will be stored in this variable and will allow us to access them later.
+
+```{r, message=FALSE, warning = FALSE}
+between_anova <- aov_4(response_time ~ visual_quality + (1 | participant), data = q1_data_tidied)
+```
+
+
+## Interpreting the Model Output
+
+We can view the output of our new ANOVA model using the `anova()` function:
+
+```{r}
+anova(between_anova)
+```
+
+
+We found a significant effect of Visual Quality (F () = HAVE A LOOK AT STATS LECTURES TO SEE HOW TO WRITE THIS UP (E.G. HOW MANY DECIMAL PLACES AND DEGREES OF FREEDOM)
