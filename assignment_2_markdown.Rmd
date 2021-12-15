@@ -1,7 +1,6 @@
 ---
 title: "Assignment 2"
 author: "Student ID: 10179889"
-date: ""
 output:
   html_document:
     theme: flatly
@@ -14,15 +13,105 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Introduction
+# Overview
 
-In this assignment, we have been given a variety of 
+For this assignment, we have been provided with three different datasets. Using the knowledge we have gained from the workshops combined with wider reading, I will:
 
+-   Wrangle and tidy the data
+-   Summarise the data
+-   Visualise the data
+-   Perform appropriate analyses
 
-```{r}
+## Packages
+
+First, let's load in our packages using the `library()` function:
+
+```{r, message = FALSE, warning = FALSE}
 library(tidyverse)
+library(showtext)
 library(afex)
 library(emmeans)
 library(visdat)
 ```
 
+The `{tidyverse}` package contains a collection of open source R packages that gives us access to variety of useful functions and commands for data wrangling and visualisation. The `{showtext}` package enables us to load in, and use over 1291 fonts from [Google Fonts](https://fonts.google.com/) - useful for data visualisations. The `{afex}`and`{emmeans}` packages will allow us to build ANOVA models and perform and post-hoc analyses, respectively. We'll be using the `{afex]` package instead of the `{aov]` function in base R as it allows us to build ANOVA models that will work for our experimental designs, as well as using type III sums of squares by default. Finally, `{visdat}` will help us to spot any missing data in our datasets.
+
+# Question 1
+
+Let's first have a read over the question 1 information:
+
+> <font size="3"> We have 96 participants in a between participants design where we are interested in the effect of visual quality of a word on response time to pronounce the word. Our experimental factor (visual quality) has 2 levels. These are Normal vs. Degraded, and Response Time is our DV measured on a continuous scale. Let's read in our data: </font>
+
+```{r, message = FALSE}
+raw_data_1 <- read_csv("assignment_2_dataset_1.csv")
+head(raw_data_1)
+```
+
+## Data Wrangling
+
+Our Visual Quality variable is currently just named "condition" - let's change it using the `rename()` function. Within the `mutate()` argument, we can also modify it so it's coded as a factor. Finally, our conditions are not labelled meaningfully and could lead to confusion further down the line. We can recode them using the `recode` command:
+
+```{r, message = FALSE}
+q1_data <- raw_data_1 %>%
+  rename(visual_quality = condition) %>% 
+  mutate(visual_quality = recode(visual_quality,
+                            "condition_a" = "Normal",
+                            "condition_b" = "Degraded")) %>% 
+  mutate(visual_quality = factor(visual_quality))
+head(q1_data)
+```
+
+We can check to see if we have missing data somewhere in our dataset. Using the package `{visdat}`, we can visualise our dataset using the `vis_dat()` function, which in turn will let us know if we have any missing data:
+
+```{r}
+vis_miss(q1_data)
+```
+
+It looks like all the data is present - no need to use the `na.rm = TRUE` function. Let's move on to generating summary statistics.
+
+## Data Summarising
+
+We'll first utilise the `group_by()` function to gather our visual-quality variable, then `summarise()` to create a new table comprising of response time mean and standard deviation. The data can be arranged from the fastest mean response time to the slowest using the `arrange()` function:
+
+```{r, message = FALSE}
+q1_data %>% 
+  group_by(visual_quality) %>% 
+  summarise(mean = mean(response_time), sd = sd(response_time)) %>% 
+  arrange(mean)
+```
+
+At a glance, it looks as though participants who were presented a word with normal visual quality were faster at pronouncing the word than those who were presented with a word with degraded quality. At this stage, we can create some data visualisations to better convey our data.
+
+## Data Visualisations
+
+In this visualisation, we're jittering the data points, meaning that every time we execute the code, the points will jitter to a different position. This implies that our code is not reproducible, because we don't know the seed that R will use to generate the sequence. By setting the seed using the `set.seed()` function, we can ensure that the output will be the same every time it is ran. I set the seed to the number 42 for its reference to Hitch Hikers Guide to the Galaxy...
+
+```{r}
+set.seed(42)
+```
+
+To be able to manipulate the font family, we first need to load in a font family from [Google Fonts](https://fonts.google.com). I decided to pick the 'Lato' Font, as its larger character height lends itself to easier readibility at small sizes. Let's read this font into R using the `font_add_google()` command and tell showtext to automatically render the text:
+
+```{r}
+font_add_google("Lato") %>% 
+  showtext_auto()
+```
+
+Next, we can build a visualisation by plotting the raw data points using the `geom_point` function, and the shape of the distribution for each condition using the `geom_violin()` function. I used the `fct_relevel()` function to reorder the labels on the x-axis so that our 'normal' condition (the baseline) is on the left most side. We have also added some summary data in the form of the Mean and Confidence Intervals around the mean using the `stat_summary()` function. Finally, we can dictate the y-axis breaks within the `scale_y_continuous()` function, and change the font using within the `theme()` argument:
+
+```{r, message = FALSE, warning = FALSE}
+q1_data %>% 
+  mutate(visual_quality = fct_relevel(visual_quality, "Normal", "Degraded")) %>% 
+  ggplot(aes(x = visual_quality, y = response_time, colour = visual_quality)) +
+  geom_violin(width = 0.3) +
+  geom_point(alpha = 0.8, position = position_jitter(width = 0.15, seed = 42)) +
+  theme_minimal() +
+  stat_summary(fun.data = "mean_cl_boot", colour = "black") +
+  guides(colour = 'none') +
+  scale_y_continuous(breaks = seq(925, 1075, by = 25),
+                     limits = c(925, 1075)) +
+  labs(title = "Examining the effect of visual quality on response times",
+       x = "Visual Quality",
+       y = "Response Time (ms)") +
+  theme(text = element_text(family = "Lato", size = 13))
+```

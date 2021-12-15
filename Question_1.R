@@ -1,3 +1,5 @@
+font_add_google("Lato")
+
 raw_data_1 <- read_csv("assignment_2_dataset_1.csv")
 
 head(raw_data_1)
@@ -21,22 +23,45 @@ q1_data %>%
   summarise(mean = mean(response_time), sd = sd(response_time)) %>% 
   arrange(mean)
 
+q1_data %>% 
+  group_by(visual_quality) %>% 
+  arrange(response_time)
+
 #It appears at a glance that participants in the normal condition has a faster response time.
 
 #Data Visualisation
 # Use the set.seed function when running simulations to ensure all results, figures, etc are reproducible.
 set.seed(42)
+
 q1_data %>% 
-  ggplot(aes(x = fct_reorder(visual_quality, response_time), y = response_time, colour = visual_quality)) +
+  mutate(visual_quality = fct_relevel(visual_quality, "Normal", "Degraded")) %>% 
+  ggplot(aes(x = visual_quality, y = response_time, colour = visual_quality)) +
   geom_violin(width = 0.3) +
-  geom_point(position = position_jitter(width = 0.15, seed = 42)) +
+  geom_point(alpha = 0.8, position = position_jitter(width = 0.15, seed = 42)) +
   theme_minimal() +
   stat_summary(fun.data = "mean_cl_boot", colour = "black") +
   guides(colour = 'none') +
+  scale_y_continuous(breaks = seq(925, 1075, by = 25),
+                     limits = c(925, 1075)) +
   labs(title = "Examining the effect of visual quality on response times",
        x = "Visual Quality",
        y = "Response Time (ms)") +
   theme(text = element_text(size = 13))
+
+q1_data %>% 
+  mutate(visual_quality = fct_relevel(visual_quality, "Normal", "Degraded")) %>% 
+  ggplot(aes(x = visual_quality, y = response_time, colour = visual_quality)) +
+  geom_violin(width = 0.3) +
+  geom_point(alpha = 0.8, position = position_jitter(width = 0.15, seed = 42)) +
+  theme_minimal() +
+  stat_summary(fun.data = "mean_cl_boot", colour = "black") +
+  guides(colour = 'none') +
+  scale_y_continuous(breaks = seq(925, 1075, by = 25),
+                     limits = c(925, 1075)) +
+  labs(title = "Examining the effect of visual quality on response times",
+       x = "Visual Quality",
+       y = "Response Time (ms)") +
+  theme(text = element_text(family = "Lato"))
 
 
 #F value is pretty large and p < 0.001. However, we don't know  what's driving the difference yet
