@@ -39,36 +39,51 @@ dodge <- position_dodge(width = 0)
 set.seed(42)
 
 q3_data %>% 
-  ggplot(aes(x = Target, y = RT, colour = Prime)) +
-  #geom_violin(position = dodge, width = .5) +
-  #geom_boxplot(postiion = dodge, width = .5)
-  geom_point(alpha = 0.9, position = position_jitter(width = 0.1, seed = 42)) +
+  ggplot(aes(x = Prime:Target, y = RT, colour = Prime:Target)) +
+  geom_violin(position = dodge, width = .5) +
+  geom_point(alpha = 0.5, position = position_jitter(width = 0.1, seed = 42)) +
   theme_minimal() +
   labs(y = "Reaction Time (ms)") +
-  theme(text = element_text(size = 13))
+  guides(colour = 'none') +
+  theme(text = element_text(size = 13)) +
+  scale_y_continuous(breaks = seq(1400, 1750, by = 50),
+                     limits = c(1400, 1750))
 
 #This plot is wank (DO NOT SAY WANK IN MARKDOWN) so better to make an interaction plot
 
 labels <- descriptive_stats %>%
-  filter(Target == "Positive") %>% 
+  filter(Target == "Negative") %>% 
   mutate(label = case_when(Prime == "Negative" ~ "Negative Prime",
                            Prime == "Positive" ~ "Positive Prime"))
 
-descriptive_stats %>% 
-  ggplot(aes(Target, mean_RT)) + 
+descriptive_stats %>%
+  mutate(Target = fct_relevel(Target, "Positive", "Negative")) %>% 
+  ggplot(aes(x = Target, y = mean_RT)) + 
   geom_line(size = 1.2, aes(group = Prime, colour = Prime)) +
   geom_point(size = 2.6, aes(colour = Prime), shape = 15) +
   geom_text(size = 4, aes(label = label,
                           colour = Prime),
             data = labels,
             nudge_x = 0.22,
-            nudge_y = 1) +
+            nudge_y = 1.2) +
   guides(colour = 'none') +
   scale_y_continuous(breaks = seq(1545, 1570, by = 5),
                      limits = c(1545, 1570)) +
-  theme_minimal()
+  labs(x = "Target",
+       y = "Reaction Time (ms)") +
+  theme_minimal() 
 
-# This graph is much better - looks like there is an interaction
+# This graph is much better - looks like there is an interaction. It looks like there might not be any significant
+# main effects, but there might be a sig. interaction effect??
 
+# Now, we perform our repeated measures ANOVA
+
+factorial_anova <- aov_4(RT ~ Target * Prime + (1 + Target * Prime | participant), data = q3_data)
+
+anova(factorial_anova)
+
+# We have a main interaction effect, but no main effects. Let's have a look which interactions were significant
+
+emmeans(factorial_anova, pairwise ~ Target * Prime, adjust = "none")
 
 
