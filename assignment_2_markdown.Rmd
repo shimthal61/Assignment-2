@@ -1,0 +1,28 @@
+---
+title: "Assignment 2"
+author: "Student ID: 10179889"
+date: ""
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_float: true
+    font-family: Lato
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+In this assignment, we have been given a variety of 
+
+
+```{r}
+library(tidyverse)
+library(afex)
+library(emmeans)
+library(visdat)
+```
+
