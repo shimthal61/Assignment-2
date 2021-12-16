@@ -2,35 +2,52 @@ raw_data_2 <- read_csv("assignment_2_dataset_2.csv")
 
 head(raw_data_2)
 
-q2_data <- raw_data_2 %>% 
+q2_data_tidied <- raw_data_2 %>% 
   rename(visual_quality = condition) %>% 
   mutate(visual_quality = recode(visual_quality,
                                  "condition_a" = "Normal",
                                  "condition_b" = "Degreaded")) %>%
   mutate(visual_quality = factor(visual_quality))
 
-head(q2_data)
+head(q2_data_tidied)
 
 # data summarising, have already done this in the question before though
 
-q2_summarised <- q2_data %>% 
+q2_summarised <- q2_data_tidied %>% 
   group_by(visual_quality, caffeine) %>% 
   summarise(mean = mean(response_time), sd = sd(response_time)) %>% 
   arrange(mean)
-
-
 
 set.seed(42)
 
 # Let's examine the relationship between our covariate (caffeine) on our DV (response time)
 
-q2_data %>%
+#Line of best fit
+q2_data_tidied %>%
+  mutate(visual_quality = fct_relevel(visual_quality, "Normal", "Degraded")) %>% 
   ggplot(aes(x = caffeine, y = response_time, colour = visual_quality)) +
+  geom_smooth(aes(x = caffeine, y = response_time), method = "lm", se = FALSE, inherit.aes = FALSE) +
   geom_point(size = 1.5, position = position_jitter(width = 0.1, seed = 42)) +
   theme_minimal() +
   labs(x = "Cups of coffee",
        y = "Response Time (ms)",
-       colour = "Visual Quality")
+       colour = "Visual Quality") +
+  scale_y_continuous(breaks = seq(950, 1075, by = 25),
+                     limits = c(950, 1075)) +
+  theme(text = element_text(family = "lato", size = 13))
+
+q2_data_tidied %>%
+  mutate(visual_quality = fct_relevel(visual_quality, "Normal", "Degraded")) %>% 
+  ggplot(aes(x = caffeine, y = response_time, colour = visual_quality)) +
+  geom_smooth(method = "lm", se = FALSE) +
+  geom_point(size = 1.5, position = position_jitter(width = 0.1, seed = 42)) +
+  theme_minimal() +
+  labs(x = "Cups of coffee",
+       y = "Response Time (ms)",
+       colour = "Visual Quality") +
+  scale_y_continuous(breaks = seq(950, 1075, by = 25),
+                     limits = c(950, 1075)) +
+  theme(text = element_text(family = "lato", size = 13))
 
 # Doesn't look like there is much of a relationship between caffeine and response time
 

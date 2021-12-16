@@ -1,4 +1,4 @@
-font_add_google("Lato")
+font_add("lato", regular = "lato-regular.ttf")
 
 raw_data_1 <- read_csv("assignment_2_dataset_1.csv")
 
@@ -46,7 +46,7 @@ q1_data_tidied %>%
   labs(title = "Examining the effect of visual quality on response times",
        x = "Visual Quality",
        y = "Response Time (ms)") +
-  theme(text = element_text(family = "Lato", size = 13))
+  theme(text = element_text(family = "lato", size = 13))
 
 #F value is pretty large and p < 0.001. However, we don't know  what's driving the difference yet
 between_anova <- aov_4(response_time ~ visual_quality + (1 | participant), data = q1_data_tidied)
