@@ -29,22 +29,35 @@ descriptive_stats <- q3_data %>%
   group_by(Prime, Target) %>% 
   summarise(mean_RT = mean(RT), sd_RT = sd(RT)) %>% 
   arrange(mean_RT)
-
 head(descriptive_stats)
 
 # Making some data visualisations
+
+
+q3_data %>% 
+  ggplot(aes(x = Target, y = RT, colour = Prime)) +
+  geom_violin(width = .5) +
+  geom_point(alpha = 0.3, position = position_dodge(width = 0.5)) +
+  #geom_point(alpha = 0.5, position = position_jitter(width = 0.1, seed = 42)) +
+  theme_minimal() +
+  labs(y = "Reaction Time (ms)") +
+  stat_summary(fun.data = "mean_cl_boot", colour = "black", position = position_dodge(width = 0)) +
+  theme(text = element_text(size = 13)) +
+  scale_y_continuous(breaks = seq(1400, 1750, by = 50),
+                     limits = c(1400, 1750))
 
 dodge <- position_dodge(width = 0)
 
 set.seed(42)
 
 q3_data %>% 
-  ggplot(aes(x = Prime:Target, y = RT, colour = Prime:Target)) +
-  geom_violin(position = dodge, width = .5) +
+  ggplot(aes(x = Prime:Target, y = RT, colour = Target)) +
+  geom_violin(width = .5) +
   geom_point(alpha = 0.5, position = position_jitter(width = 0.1, seed = 42)) +
   theme_minimal() +
-  labs(y = "Reaction Time (ms)") +
-  guides(colour = 'none') +
+  labs(x = "Prime", 
+       y = "Reaction Time (ms)") +
+  stat_summary(fun.data = "mean_cl_boot", colour = "black") +
   theme(text = element_text(size = 13)) +
   scale_y_continuous(breaks = seq(1400, 1750, by = 50),
                      limits = c(1400, 1750))
@@ -72,6 +85,8 @@ descriptive_stats %>%
   labs(x = "Target",
        y = "Reaction Time (ms)") +
   theme_minimal() 
+
+# Have a look at the video (timestamp: 6:05) to see what Andrew has to say about this interaction.
 
 # This graph is much better - looks like there is an interaction. It looks like there might not be any significant
 # main effects, but there might be a sig. interaction effect??

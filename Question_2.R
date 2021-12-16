@@ -84,7 +84,7 @@ contrasts(q2_data_tidied$visual_quality)
 
 # Response time = Intercept + degraded
 
-model_lm <- lm(response_time ~ visual_quality, data = q2_data)
+anova_lm <- lm(response_time ~ visual_quality, data = q2_data_tidied)
 
 model_lm
 
@@ -118,13 +118,13 @@ print(998.564 + (2.469*2.552083) + 12.791)
 
 # Now we want to standardise to increase the interpretation of the coefficients in our linear model by centering our covariates
 
-my_scaled_data <- q2_data %>% 
+q2_scaled_data <- q2_data %>% 
   mutate(centred_caffeine = scale(caffeine))
 
-plot(density(my_scaled_data$caffeine))
+plot(density(q2_scaled_data$caffeine))
 
-plot(density(my_scaled_data$centred_caffeine))  
+plot(density(q2_scaled_data$centred_caffeine))  
 
-model_ancova_centred <- lm(response_time ~ centred_caffeine + visual_quality, data = my_scaled_data)
+model_ancova_centred <- lm(response_time ~ centred_caffeine + visual_quality, data = q2_scaled_data)
 
 model_ancova_centred      

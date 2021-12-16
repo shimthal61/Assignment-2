@@ -38,7 +38,7 @@ The `{tidyverse}` package contains a collection of open source R packages that g
 
 # Question 1
 
-Let's first have a read over the question 1 information:
+Let's read in our data and look over the question 1 information:
 
 > <font size="3"> We have 96 participants in a between participants design where we are interested in the effect of visual quality of a word on response time to pronounce the word. Our experimental factor (visual quality) has 2 levels. These are Normal vs. Degraded, and Response Time is our DV measured on a continuous scale. Let's read in our data: </font>
 
@@ -104,7 +104,7 @@ q1_data_tidied %>%
   mutate(visual_quality = fct_relevel(visual_quality, "Normal", "Degraded")) %>% 
   ggplot(aes(x = visual_quality, y = response_time, colour = visual_quality)) +
   geom_violin(width = 0.3) +
-  geom_point(alpha = 0.8, position = position_jitter(width = 0.15, seed = 42)) +
+  geom_point(alpha = 0.7, position = position_jitter(width = 0.08, seed = 42)) +
   theme_minimal() +
   stat_summary(fun.data = "mean_cl_boot", colour = "black") +
   guides(colour = 'none') +
@@ -144,7 +144,7 @@ In other words, participants were faster at pronouncing a word when the word was
 
 # Question 2
 
-First, we should have a read over some of the characteristics of question 2:
+First, we should read in our data and look over some of the characteristics of question 2:
 
 > <font size="3"> We have 96 participants in a between participants design where we are interested in the effect of visual quality of a word on response time to pronounce the word. We are also interested in whether caffeine consumption will contribute to any of the variance. Our experimental factor (Visual Quality) has 2 levels. These are Normal vs. Degraded, and Response Time is our DV measured on a continuous scale. Caffiene Consumption is our covariate and has three levels - 1 cup, 2 cups, and 3 cups. We'll next read in our data: </font>
 
@@ -177,7 +177,7 @@ q2_data_tidied %>%
   ggplot(aes(x = caffeine, y = response_time, colour = visual_quality)) +
   geom_smooth(aes(x = caffeine, y = response_time), inherit.aes = FALSE,
               method = "lm", se = FALSE) +
-  geom_point(size = 1.5, position = position_jitter(width = 0.1, seed = 42)) +
+  geom_point(size = 1.5, position = position_jitter(width = 0.08, seed = 42)) +
   theme_minimal() +
   labs(x = "Cups of coffee",
        y = "Response Time (ms)",
@@ -298,9 +298,107 @@ round(1011.354 + (2.469*2.552083) + (-12.791*0))
 round(1011.354 + (2.469*2.552083) + (-12.791*1))
 ```
 
-As we predicted, these adjusted means are the same as the means we saw earlier when building out ANCOVA model, and again demonstrates how ANCOVA is a special case of regression. 
+As we predicted, these adjusted means are the same as the means we saw earlier when building out ANCOVA model, and again demonstrates how ANCOVA is a special case of regression.
 
 ## Centering our Covariate
 
+We can improve the interpretation of the coefficients in our linear model by scaling and centering our covariates. With out mean centrerd on 0, this standadises the variable and eliminates the need to multiply the linear model coefficient for the covariant by the covariate's mean.
 
+By using the `scale()` function, we can create a scaled and centred version of our covariate in our data frame.
+
+```{r}
+q2_scaled_data <- q2_data_tidied %>% 
+  mutate(centred_caffeine = scale(caffeine))
+```
+
+We can compare the uncentred to the centered covariate using the `plot()` function to see that the data is unchanged, other than the variable mean now being centered on zero and the distribution being scaled.
+
+**Uncentered covariate**
+
+```{r}
+plot(density(q2_scaled_data$caffeine))
+```
+
+**Centered covariate**
+
+```{r}
+plot(density(q2_scaled_data$centred_caffeine))
+```
+
+Finally, let's build our linear model with the scaled and centered covariate.
+
+```{r}
+q2_ancova_centred <- lm(response_time ~ centred_caffeine + visual_quality, data = q2_scaled_data)
+q2_ancova_centred      
+```
+
+The intercept now corresponds to the adjusted mean for the 'Normal' group. We can calculate the adjusted mean for the 'Degraded' group by subtracting 12.791 from 1017.655, and rounding the output. Therefore, scaling and centering the covariate makes it much easier to later interpret the coefficients of our linear model.
+
+# Question 3
+
+For our final question, let's have a look at the experiment we've been given and read in our data:
+
+> <font size="3"> We have 148 participants in a 2 x 2 repeated measures design. We are interested in whether people respond faster to positive images following a positive prime (relative to following a negative prime), and faster to negative images following a negative prime (relative to following a positive prime). Two independent variables were manipulated within-participants in a fully factorial design; prime image with two levels (positive and negative) and target image with two levels (positive and negative). The time it took for participants to respond to the image, which was taken as a measure of reaction time, served as the dependent variable. </font>
+
+```{r}
+raw_data_3 <- read_csv("assignment_2_dataset_3.csv")
+head(raw_data_3)
+```
+
+## Data Wrangling
+
+Our data is currently in wider format, meaning that each row represents one participant. Instead, we want each row to represent the data from each condition from individual participants. To do this, we can lengthen the data using the `pivot_longer()` function.
+
+```{r}
+longer_data <- raw_data_3 %>% 
+  pivot_longer(cols = c(positiveprime_positivetarget, positiveprime_negativetarget,
+                        negativeprime_positivetarget, negativeprime_negativetarget),
+               names_to = "Condition",
+               values_to = "RT")
+head(longer_data)
+```
+
+Our variables and conditions are still not labelled meaningfully - we can rename them using the `recode()` function. We also need to separate our 'Condition' variable and name them according to our independent variables so our tibble reflects the 2 x 2 structure of the experiment. Finally, we'll recode our IVs as factors:
+
+```{r}
+q3_data_tidied <- longer_data %>% 
+  mutate(Condition = recode(Condition,
+         "positiveprime_positivetarget" = "Positive_Positive",
+         "positiveprime_negativetarget" = "Positive_Negative",
+         "negativeprime_positivetarget" = "Negative_Positive",
+         "negativeprime_negativetarget" = "Negative_Negative")) %>% 
+  separate(col = "Condition", into = c("Prime", "Target"), sep = "_") %>% 
+  mutate(Prime = factor(Prime), Target = factor(Target))
+head(q3_data_tidied)
+```
+
+## Data Summarising
+
+Let's generate some summary statistics and arrange the data from the fastest mean reaction time to the slowest. We need to specify our two grouping variables in the `group()` function call.
+
+```{r}
+q3_data_tidied %>% 
+  group_by(Prime, Target) %>% 
+  summarise(mean_RT = mean(RT), sd_RT = sd(RT)) %>% 
+  arrange(mean_RT)
+```
+
+Looking at the tibble, it seems like participants were quickest at identifying the image when the prime valence was congruent with the target valence. As before, our output has not generated any missing data, so no need to run the `vis_miss()` function. Let's generate some data visualisations next.
+
+## Data Visualisations
+
+
+
+```{r}
+q3_data_tidied %>% 
+  ggplot(aes(x = Prime:Target, y = RT, colour = Prime:Target)) +
+  geom_violin(width = .5) +
+  geom_point(alpha = 0.7, position = position_jitter(width = 0.08, seed = 42)) +
+  theme_minimal() +
+  labs(x = y = "Reaction Time (ms)") +
+  guides(colour = 'none') +
+  theme(text = element_text(size = 13)) +
+  scale_y_continuous(breaks = seq(1400, 1750, by = 50),
+                     limits = c(1400, 1750))
+```
 
