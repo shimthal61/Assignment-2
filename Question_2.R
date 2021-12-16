@@ -55,7 +55,7 @@ q2_data_tidied %>%
 # We have to take account of our covariate - cups of coffee
 
 # Running an ANOVA for our covariate??
-model_covariate <- aov_4(response_time ~ caffeine + (1 | participant), data = q2_data)
+model_covariate <- aov_4(response_time ~ caffeine + (1 | participant), data = q2_data_tidied)
 
 anova(model_covariate)
 

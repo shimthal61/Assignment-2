@@ -20,7 +20,7 @@ For this assignment, we have been provided with three different datasets. Using 
 -   Wrangle and tidy the data
 -   Summarise the data
 -   Visualise the data
--   Perform appropriate analyses
+-   Building and interpretting appropriate analyses
 
 ## Packages
 
@@ -113,7 +113,7 @@ q1_data_tidied %>%
   labs(title = "Examining the effect of visual quality on response times",
        x = "Visual Quality",
        y = "Response Time (ms)") +
-  theme(text = element_text(family = "Lato", size = 13))
+  theme(text = element_text(family = "Lato", size = 25))
 ```
 
 ## Building our ANOVA Model
@@ -132,7 +132,7 @@ We can view the output of our new ANOVA model using the `anova()` function:
 anova(between_anova)
 ```
 
-We can see that there is an effect in our model - the *p*-value is pretty small, but we don't yet know what direction this is in. Although we could refer to the condition means, I'm going to run a pairwise comparison using the `emmeans()` function. There is not need to change the adjustment, as we are not running multiple comparisons.
+We can see that there is an effect in our model - the *p*-value is pretty small, but we don't yet know what direction this is in. Although we could refer to the condition means, I'm going to run a pairwise comparison using the `emmeans()` function. There is no need to change the adjustment, as we're not running multiple comparisons.
 
 ```{r}
 emmeans(between_anova, pairwise ~ visual_quality)
@@ -148,14 +148,16 @@ First, we should have a read over some of the characteristics of question 2:
 
 > <font size="3"> We have 96 participants in a between participants design where we are interested in the effect of visual quality of a word on response time to pronounce the word. We are also interested in whether caffeine consumption will contribute to any of the variance. Our experimental factor (Visual Quality) has 2 levels. These are Normal vs. Degraded, and Response Time is our DV measured on a continuous scale. Caffiene Consumption is our covariate and has three levels - 1 cup, 2 cups, and 3 cups. We'll next read in our data: </font>
 
-```{r}
+```{r, message=FALSE}
 raw_data_2 <- read_csv("assignment_2_dataset_2.csv")
 head(raw_data_2)
 ```
 
+## Data Wrangling
+
 Similar to before, we need to rename our 'condition' factor to 'visual_quality', code it as a factor, and name the conditions meaningfully:
 
-```{r}
+```{r, message=FALSE}
 q2_data_tidied <- raw_data_2 %>% 
   rename(visual_quality = condition) %>% 
   mutate(visual_quality = recode(visual_quality,
@@ -165,13 +167,16 @@ q2_data_tidied <- raw_data_2 %>%
 head(q2_data_tidied)
 ```
 
-Let's now have a look at the relationship between our experimental factor (Visual Quality) covariate (Caffeine Consumption) and our dependent variable (Response Time).
+## Data Visualising
 
-```{r, message = FALSE}
+Let's now have a look at the relationship between our experimental factor (Visual Quality), covariate (Caffeine Consumption), and our dependent variable (Response Time).
+
+```{r, message = FALSE, warning=FALSE}
 q2_data_tidied %>%
   mutate(visual_quality = fct_relevel(visual_quality, "Normal", "Degraded")) %>% 
   ggplot(aes(x = caffeine, y = response_time, colour = visual_quality)) +
-  geom_smooth(aes(x = caffeine, y = response_time), method = "lm", se = FALSE, inherit.aes = FALSE) +
+  geom_smooth(aes(x = caffeine, y = response_time), inherit.aes = FALSE,
+              method = "lm", se = FALSE) +
   geom_point(size = 1.5, position = position_jitter(width = 0.1, seed = 42)) +
   theme_minimal() +
   labs(x = "Cups of coffee",
@@ -179,9 +184,34 @@ q2_data_tidied %>%
        colour = "Visual Quality") +
   scale_y_continuous(breaks = seq(950, 1075, by = 25),
                      limits = c(950, 1075)) +
-  theme(text = element_text(family = "lato", size = 13))
+  theme(text = element_text(family = "lato", size = 25))
 ```
 
-In this visualisation, I have added in a regression line that depicts the correlation between our covariant, Caffeine, and our DV, Response Time using the `geom_smooth()` function. I was able to remove our experimental factor, Visual Quality, from the regression line by specifying what data to include in the `aes()` function, and for this data to supersede our graph aesthetics using `inherit.aes = FALSE`.
+In this visualisation, I have added in a regression line that depicts the correlation between our covariant, Caffeine, and our DV, Response Time using the `geom_smooth()` function. In our `geom_smooth` command, I was able to remove our experimental factor, Visual Quality, from the regression line by specifying what data to using the `aes()` function, and for this data to supersede our graph aesthetics using `inherit.aes = FALSE`.
 
-We can see from our regression line that there isn't a particularly strong relationship between Caffeine and Response Time. 
+We can see from our regression line that there isn't a particularly strong relationship between Caffeine and Response Time. Interestingly, our Caffeine consumption groups appear to be clustering in our data by Visual Quality, suggesting that that our covaraite may have an effect on the relationship between Visual Quality and Caffeine. Let's build an ANCOVA model to test this assumption.
+
+## Building our ANCOVA Model
+
+We saw in our first dataset that Visual Quality had a significant effect on Response Time, with participants who were presented with visually normal words pronouncing them quicker than participants who were presented with visually degraded words. However, let's control for the effect of our covariate by building an ANCOVA model which includes Caffeine, ensuring that we add our covariate before our experimental condition manipulation. We set the factorize parameter to FALSE so that Caffeine is treated as a continuous predictor, rather than an experimental factor in our model.
+
+```{r, message=FALSE, warning=FALSE}
+model_ancova <- aov_4(response_time ~ caffeine + visual_quality + (1 | participant), data = q2_data_tidied, factorize = FALSE)
+anova(model_ancova)
+```
+
+Now, when we control the effect of our covariate (Caffiene), we can see that the effect of Visual Quality, that previously was *F* = 15.78, is now *F* = 3.57, with *p* = .062 and is no longer significant. Moreover, as we predicted in our visualisation, our covariate is also non-significant, *F* = 1.12, *p* = .293. Following on from this, we can use the `emmeans()` function to produce the adjusted means for each of our two experimental groups, taking into account the influence of our covariate. I will also perform an unadjusted marginal means test without the covariate as I did in question 1 so that we can compare them.
+
+**Unadjusted means:**
+
+```{r}
+emmeans(between_anova, pairwise ~ visual_quality)
+```
+
+**Adjusted means:**
+
+```{r}
+emmeans(model_ancova, pairwise ~ visual_quality)
+```
+
+We can see that our adjusted means differ from our unadjusted means for our experimental groups (SAY WHAT THEY ARE NOW). However, the two adjusted means are still fairly far apart, and can probably attribute to why our *p* value (*p* = .062) was very close to the significance threshhold of .05.

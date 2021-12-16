@@ -48,6 +48,8 @@ q1_data_tidied %>%
        y = "Response Time (ms)") +
   theme(text = element_text(family = "lato", size = 13))
 
+
+
 #F value is pretty large and p < 0.001. However, we don't know  what's driving the difference yet
 between_anova <- aov_4(response_time ~ visual_quality + (1 | participant), data = q1_data_tidied)
 
