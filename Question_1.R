@@ -51,7 +51,7 @@ q1_data_tidied %>%
 #F value is pretty large and p < 0.001. However, we don't know  what's driving the difference yet
 between_anova <- aov_4(response_time ~ visual_quality + (1 | participant), data = q1_data_tidied)
 
-anova(model1)
+anova(between_anova)
 
 # WE DON'T NEED TO DO PAIRWISE AS WE ONLY HAVE 2 LEVELS
 

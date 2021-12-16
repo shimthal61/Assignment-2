@@ -12,10 +12,13 @@ q2_data <- raw_data_2 %>%
 head(q2_data)
 
 # data summarising, have already done this in the question before though
-q2_data %>% 
-  group_by(visual_quality) %>% 
+
+q2_summarised <- q2_data %>% 
+  group_by(visual_quality, caffeine) %>% 
   summarise(mean = mean(response_time), sd = sd(response_time)) %>% 
   arrange(mean)
+
+
 
 set.seed(42)
 

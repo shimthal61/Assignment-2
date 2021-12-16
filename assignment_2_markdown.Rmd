@@ -47,7 +47,6 @@ raw_data_1 <- read_csv("assignment_2_dataset_1.csv")
 head(raw_data_1)
 ```
 
-
 ## Data Wrangling
 
 Our Visual Quality variable is currently just named "condition" - let's change it using the `rename()` function. Within the `mutate()` argument, we can also modify it so it's coded as a factor. Finally, our conditions are not labelled meaningfully and could lead to confusion further down the line. We can recode them using the `recode` command:
@@ -62,13 +61,11 @@ q1_data_tidied <- raw_data_1 %>%
 head(q1_data_tidied)
 ```
 
-
 We can check to see if we have missing data somewhere in our dataset. Using the package `{visdat}`, we can visualise our dataset using the `vis_dat()` function, which in turn will let us know if we have any missing data:
 
 ```{r}
 vis_miss(q1_data_tidied)
 ```
-
 
 It looks like all the data is present - no need to use the `na.rm = TRUE` function. Let's move on to generating summary statistics.
 
@@ -83,7 +80,6 @@ q1_data_tidied %>%
   arrange(mean)
 ```
 
-
 At a glance, it looks as though participants who were presented a word with normal visual quality were faster at pronouncing the word than those who were presented with a word with degraded quality. At this stage, we can create some data visualisations to better convey our data.
 
 ## Data Visualisations
@@ -94,14 +90,12 @@ In this visualisation, we're jittering the data points, meaning that every time 
 set.seed(42)
 ```
 
-
 To be able to manipulate the font family, we first need to load in a font family from [Google Fonts](https://fonts.google.com). I decided to pick the 'Lato' Font, as its larger character height lends itself to easier readibility at small sizes. Let's read this font into R using the `font_add_google()` command and tell showtext to automatically render the text:
 
 ```{r}
 font_add_google("Lato") %>% 
   showtext_auto()
 ```
-
 
 Next, we can build a visualisation by plotting the raw data points using the `geom_point` function, and the shape of the distribution for each condition using the `geom_violin()` function. By default, R will order the conditions alphabetically, so I used the `fct_relevel()` function to reorder the labels on the x-axis so that our 'normal' condition (the baseline) is on the left most side. We have also added some summary data in the form of the Mean and Confidence Intervals around the mean using the `stat_summary()` function. Finally, we can dictate the y-axis breaks within the `scale_y_continuous()` function, and change the text font and size within the `theme()` argument:
 
@@ -122,7 +116,6 @@ q1_data_tidied %>%
   theme(text = element_text(family = "Lato", size = 13))
 ```
 
-
 ## Building our ANOVA Model
 
 Let's now build our model using the `aov_4()` function in the `{afex}` package. Within this package, the syntax for ANOVA models is: `aov_4(DV ~ IV + (1 | participant), data = q1_data_tidied)`. The `~` symbol translates to 'predicted by', and takes into account our random effect. We need to specify what data we are using in our model using `data = q1_data_tidied`. Finally, we map the output of the ANOVA result onto a variable I've called `between_anova`. This means that the ANOVA results will be stored in this variable and will allow us to access them later.
@@ -130,7 +123,6 @@ Let's now build our model using the `aov_4()` function in the `{afex}` package. 
 ```{r, message=FALSE, warning = FALSE}
 between_anova <- aov_4(response_time ~ visual_quality + (1 | participant), data = q1_data_tidied)
 ```
-
 
 ## Interpreting the Model Output
 
@@ -140,5 +132,37 @@ We can view the output of our new ANOVA model using the `anova()` function:
 anova(between_anova)
 ```
 
+We can see that there is an effect in our model - the *p*-value is pretty small, but we don't yet know what direction this is in. Although we could refer to the condition means, I'm going to run a pairwise comparison using the `emmeans()` function. There is not need to change the adjustment, as we are not running multiple comparisons.
 
-We found a significant effect of Visual Quality (F () = HAVE A LOOK AT STATS LECTURES TO SEE HOW TO WRITE THIS UP (E.G. HOW MANY DECIMAL PLACES AND DEGREES OF FREEDOM)
+```{r}
+emmeans(between_anova, pairwise ~ visual_quality)
+```
+
+
+An independent one-way ANOVA revealed a significant difference between IV level means, *F*(1,94) = 15.78, *p* \< .001, generalised η2 = .14. Tukey comparisons revealed that the normal visual quality group performed signficantly better than the degrated visual quality group (*p* < .001)
+
+
+In other words, participants were faster at pronouncing a word when the word was visually normal, compared to when the word was visually degraded.
+
+# Question 2
+
+First, we should have a read over some of the characteristics of question 2:
+
+> <font size="3"> We have 96 participants in a between participants design where we are interested in the effect of visual quality of a word on response time to pronounce the word. We are also interested in whether caffeine consumption will contribute to any of the variance. Our experimental factor (visual quality) has 2 levels. These are Normal vs. Degraded, and Response Time is our DV measured on a continuous scale. Caffiene consumption is our covariate and has three levels - 1 cup, 2 cups, and 3 cups. We'll next read in our data: </font>
+
+```{r}
+raw_data_2 <- read_csv("assignment_2_dataset_2.csv")
+head(raw_data_2)
+```
+
+Similar to before, we need to rename our 'condition' factor to 'visual_quality', code it as a factor, and name the conditions meaningfully:
+
+```{r}
+q2_data_tidied <- raw_data_2 %>% 
+  rename(visual_quality = condition) %>% 
+  mutate(visual_quality = recode(visual_quality,
+                                 "condition_a" = "Normal",
+                                 "condition_b" = "Degreaded")) %>%
+  mutate(visual_quality = factor(visual_quality))
+```
+

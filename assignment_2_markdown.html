@@ -361,7 +361,19 @@ head(q1_data_tidied)</code></pre>
 ## visual_quality      1     94 497.58 15.781 0.14375 0.0001393 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<p>We found a significant effect of Visual Quality (F () = HAVE A LOOK AT STATS LECTURES TO SEE HOW TO WRITE THIS UP (E.G. HOW MANY DECIMAL PLACES AND DEGREES OF FREEDOM)</p>
+<p>An independent one-way ANOVA revealed a significant difference between IV level means, <em>F</em>(2,94) = 15.78, <em>p</em> &lt; .001, generalised η2 = 0.14.</p>
+<p>In other words, participants were faster at pronouncing a word when the word was visually normal, compared to when the word was visually degraded.</p>
+<pre class="r"><code>emmeans(between_anova, pairwise ~ visual_quality)</code></pre>
+<pre><code>## $emmeans
+##  visual_quality emmean   SE df lower.CL upper.CL
+##  Degraded         1020 3.22 94     1014     1027
+##  Normal           1002 3.22 94      996     1009
+## 
+## Confidence level used: 0.95 
+## 
+## $contrasts
+##  contrast          estimate   SE df t.ratio p.value
+##  Degraded - Normal     18.1 4.55 94   3.973  0.0001</code></pre>
 </div>
 </div>
 
