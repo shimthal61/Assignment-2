@@ -202,16 +202,43 @@ anova(model_ancova)
 
 Now, when we control the effect of our covariate (Caffiene), we can see that the effect of Visual Quality, that previously was *F* = 15.78, is now *F* = 3.57, with *p* = .062 and is no longer significant. Moreover, as we predicted in our visualisation, our covariate is also non-significant, *F* = 1.12, *p* = .293. Following on from this, we can use the `emmeans()` function to produce the adjusted means for each of our two experimental groups, taking into account the influence of our covariate. I will also perform an unadjusted marginal means test without the covariate as I did in question 1 so that we can compare them.
 
-**Unadjusted means:**
+**Unadjusted means**
 
 ```{r}
 emmeans(between_anova, pairwise ~ visual_quality)
 ```
 
-**Adjusted means:**
+**Adjusted means**
 
 ```{r}
 emmeans(model_ancova, pairwise ~ visual_quality)
 ```
 
-We can see that our adjusted means differ from our unadjusted means for our experimental groups (SAY WHAT THEY ARE NOW). However, the two adjusted means are still fairly far apart, and can probably attribute to why our *p* value (*p* = .062) was very close to the significance threshhold of .05.
+We can see that our adjusted means differ from our unadjusted means for our experimental groups, although this difference is fairly small. Furthermore, our two adjusted means are still fairly far apart (normal = 1005ms, degraded = 1018ms), and can probably attribute to why our *p* value (*p* = .062) was very close to the significance threshold of .05.
+
+
+## ANOCOVA as a Special Case of Regression
+
+We are now going to look at ANOCOVA as a special case of regression, building the equivalent linear model and interpreting the output. 
+
+
+### Setting up our contrasts
+
+We first need to use dummy (treatment) data for the levels of our experimental factor. Let's have a look at our contrasts using the `contrasts()` function.
+
+```{r}
+contrasts(q2_data_tidied$visual_quality)
+```
+
+As it currently stands, our 'Degraded' condition is set at our reference level (0). However, it makes more sense for our 'Normal' group to be the reference level, as we want it to correspond to the intercept of our linear model. By default, R will generate a contrast matrix in alphabetical order, so we need to tell it otherwise. As we did in our visualisations, we can code the 'Normal' group as '0' using the `fct_relevel()` function:
+
+```{r}
+q2_data_tidied <- q2_data_tidied %>% 
+  mutate(visual_quality = fct_relevel(visual_quality,
+                                      c("Normal", "Degraded")))
+contrasts(q2_data_tidied$visual_quality)
+```
+
+This is better - our 'Normal' condition is coded as '0' and now represents the reference level.
+
+### ANOVA as a Linear Model

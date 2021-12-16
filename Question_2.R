@@ -78,7 +78,7 @@ emmeans(model_ancova, pairwise ~ visual_quality)
 
 # We want 'normal' visual quality to be our default reference level. When we build our linear model,
 # the intercept of the line we're building is going to correspond to the mean of our 'normal' group
-contrasts(q2_data$visual_quality)
+contrasts(q2_data_tidied$visual_quality)
 
 # Our contrasts are already set so that 'normal' is our baseline - no need to change the contrasts!
 

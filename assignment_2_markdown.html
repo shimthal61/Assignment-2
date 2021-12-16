@@ -447,8 +447,8 @@ anova(model_ancova)</code></pre>
 ## visual_quality      1     93 496.95 3.5730 0.036998 0.06184 .
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<p>Now, when we control the effect of our covariate (Caffiene), we can see that the effect of Visual Quality, that previously was <em>F</em> = 15.78, is now <em>F</em> = 3.57, with <em>p</em> = .062 and is no longer significant. Moreover, as we predicted in our visualisation, our covariate is also non-significant, <em>F</em> = 1.12, <em>p</em> = .293. Following on from this, we can use the <code>emmeans()</code> function to produce the adjusted means for each of our two experimental groups, taking into account the influence of our covariate. I will also perform an unadjusted marginal means test without the covariate as I did in question 1 so that we can compare them:</p>
-<p><strong>Unadjusted means:</strong></p>
+<p>Now, when we control the effect of our covariate (Caffiene), we can see that the effect of Visual Quality, that previously was <em>F</em> = 15.78, is now <em>F</em> = 3.57, with <em>p</em> = .062 and is no longer significant. Moreover, as we predicted in our visualisation, our covariate is also non-significant, <em>F</em> = 1.12, <em>p</em> = .293. Following on from this, we can use the <code>emmeans()</code> function to produce the adjusted means for each of our two experimental groups, taking into account the influence of our covariate. I will also perform an unadjusted marginal means test without the covariate as I did in question 1 so that we can compare them.</p>
+<p><strong>Unadjusted means</strong></p>
 <pre class="r"><code>emmeans(between_anova, pairwise ~ visual_quality)</code></pre>
 <pre><code>## $emmeans
 ##  visual_quality emmean   SE df lower.CL upper.CL
@@ -460,7 +460,7 @@ anova(model_ancova)</code></pre>
 ## $contrasts
 ##  contrast          estimate   SE df t.ratio p.value
 ##  Degraded - Normal     18.1 4.55 94   3.973  0.0001</code></pre>
-<p><strong>Adjusted means:</strong></p>
+<p><strong>Adjusted means</strong></p>
 <pre class="r"><code>emmeans(model_ancova, pairwise ~ visual_quality)</code></pre>
 <pre><code>## $emmeans
 ##  visual_quality emmean   SE df lower.CL upper.CL
@@ -472,7 +472,7 @@ anova(model_ancova)</code></pre>
 ## $contrasts
 ##  contrast           estimate   SE df t.ratio p.value
 ##  Degreaded - Normal     12.8 6.77 93   1.890  0.0618</code></pre>
-<p>We can see that our adjusted means differ from our unadjusted means for our experimental groups. However, the two adjusted means are still fairly far apart, and can probably attribute to why our <em>p</em> value was very close to the significance threshhold of .05.</p>
+<p>We can see that our adjusted means differ from our unadjusted means for our experimental groups, although this difference is fairly small. Furthermore, our two adjusted means are still fairly far apart (normal = 1005ms, degraded = 1018ms), and can probably attribute to why our <em>p</em> value (<em>p</em> = .062) was very close to the significance threshhold of .05.</p>
 </div>
 </div>
 
