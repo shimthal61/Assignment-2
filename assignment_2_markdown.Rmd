@@ -84,7 +84,7 @@ In this visualisation, we're jittering the data points, meaning that every time 
 set.seed(42)
 ```
 
-To be able to manipulate the font family, we first need to download a font from [Google Fonts](https://fonts.google.com). I decided to pick the 'Lato' Font, as its larger character height lends itself to easier readibility at small sizes. Let's read this font into R using the `font_add_()` command and tell `{showtext}` to automatically render the text:
+To be able to manipulate the font family, we first need to download a font from [Google Fonts](https://fonts.google.com). I decided to pick the 'Lato' Font, as its larger character height lends itself to easier readability at small sizes. Let's read this font into R using the `font_add_()` command and tell `{showtext}` to automatically render the text:
 
 ```{r}
 font_add("lato", regular = "lato-regular.ttf")
@@ -132,7 +132,7 @@ We can see that there is an effect in our model - the *p*-value is pretty small,
 emmeans(between_anova, pairwise ~ visual_quality)
 ```
 
-An independent one-way ANOVA revealed a significant difference between IV level means, *F*(1,94) = 15.78, *p* \< .001, generalised η2 = .14. Tukey comparisons revealed that the normal visual quality group performed signficantly better than the degrated visual quality group (*p* \< .001)
+An independent one-way ANOVA revealed a significant difference between IV level means, *F*(1,94) = 15.78, *p* \< .001, generalised η2 = .14. Tukey comparisons revealed that the normal visual quality group performed significantly better than the degraded visual quality group (*p* \< .001)
 
 In other words, participants were faster at pronouncing a word when the word was visually normal, compared to when the word was visually degraded.
 
@@ -140,7 +140,7 @@ In other words, participants were faster at pronouncing a word when the word was
 
 First, we should read in our data and look over some of the characteristics of question 2:
 
-> <font size="3"> We have 96 participants in a between participants design where we are interested in the effect of visual quality of a word on response time to pronounce the word. We are also interested in whether caffeine consumption will contribute to any of the variance. Our experimental factor (Visual Quality) has 2 levels. These are Normal vs. Degraded, and Response Time is our DV measured on a continuous scale. Caffiene Consumption is our covariate and has three levels - 1 cup, 2 cups, and 3 cups. We'll next read in our data: </font>
+> <font size="3"> We have 96 participants in a between participants design where we are interested in the effect of visual quality of a word on response time to pronounce the word. We are also interested in whether caffeine consumption will contribute to any of the variance. Our experimental factor (Visual Quality) has 2 levels. These are Normal vs. Degraded, and Response Time is our DV measured on a continuous scale. Caffeine Consumption is our covariate and has three levels - 1 cup, 2 cups, and 3 cups. We'll next read in our data: </font>
 
 ```{r, message=FALSE}
 raw_data_2 <- read_csv("assignment_2_dataset_2.csv")
@@ -196,7 +196,7 @@ model_ancova <- aov_4(response_time ~ caffeine + visual_quality + (1 | participa
 anova(model_ancova)
 ```
 
-Now, when we control the effect of our covariate (Caffiene), we can see that the effect of Visual Quality, that previously was *F* = 15.78, is now *F* = 3.57, and our *p* value is no longer significant (*p* = .062). Moreover, as we assumed in our visualisation, our covariate is also non-significant, *F* = 1.12, *p* = .293. Following on from this, we can use the `emmeans()` function to produce the adjusted means for each of our two experimental groups, taking into account the influence of our covariate. I will also perform an unadjusted marginal means test without the covariate as I did in question 1 so that we can compare them.
+Now, when we control the effect of our covariate (Caffeine), we can see that the effect of Visual Quality, that previously was *F* = 15.78, is now *F* = 3.57, and our *p* value is no longer significant (*p* = .062). Moreover, as we assumed in our visualisation, our covariate is also non-significant, *F* = 1.12, *p* = .293. Following on from this, we can use the `emmeans()` function to produce the adjusted means for each of our two experimental groups, taking into account the influence of our covariate. I will also perform an unadjusted marginal means test without the covariate as I did in question 1 so that we can compare them.
 
 **Unadjusted means**
 
@@ -253,7 +253,7 @@ Using the `lm()` function to build our linear model, we are asking for our DV, R
 anova_lm
 ```
 
-The intercept is 1002.22 (which is the mean for our 'Normal' group), and β1 is 18.09. We can now use this coefficiant alongside our equation to calculate the averages for our 'Degraded' condition. I am using the `round()` function to round our intercept and coefficient means to the nearest integer, as this is what our `emmeans()` function does.
+The intercept is 1002.22 (which is the mean for our 'Normal' group), and β1 is 18.09. We can now use this coefficient alongside our equation to calculate the averages for our 'Degraded' condition. I am using the `round()` function to round our intercept and coefficient means to the nearest integer, as this is what our `emmeans()` function does.
 
 ```{r}
 round(1002.22 + (18.09*1))
@@ -471,4 +471,4 @@ For our first meaningful comparison, which is Reaction Time to Negative Targets 
 
 We conducted a 2 (Prime: Positive vs. Negative) x 2 (Target: Positive vs. Negative) repeated measures ANOVA to investigate the influence of Context valence on reaction times to images of Positive or Negative valence. The ANOVA revealed no effect of Prime (*F* < 1), no effect of Target (*F* < 1), but an interaction between Prime and Target (*F*(1, 147) = 17.25, *p* < .001, ηG2 = .029).
 
-The interaction was interpreted by conducting Bonferroni-corrected pairwise comparisons. These comparisons revealed that the interaction was driven by Negative Targets being processed faster when preceded by Negative vs. Positive Primes (1,574 ms. vs. 1,567 ms., *t*(294) = 3.14, *p* = .004). The interaction was also driven by Positive Targets being processed faster when preceded by Negative vs. Positive Primes (1,563 ms. vs. 1,547 ms., *t*(294) = 2.91, *p* = .008).
+The interaction was interpreted by conducting Bonferroni-corrected pairwise comparisons. These comparisons revealed that the interaction was driven by Negative Targets being processed faster when preceded by Negative vs. Positive Primes (1,547 ms. vs. 1,567 ms., *t*(294) = 3.14, *p* = .004). The interaction was also driven by Positive Targets being processed faster when preceded by Negative vs. Positive Primes (1,563 ms. vs. 1,547 ms., *t*(294) = 2.91, *p* = .008).
