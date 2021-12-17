@@ -62,7 +62,6 @@ q1_data_tidied <- raw_data_1 %>%
 head(q1_data_tidied)
 ```
 
-
 ## Data Summarising
 
 We'll first utilise the `group_by()` function to gather our visual-quality variable, then `summarise()` to create a new table consisting of Response Time mean and standard deviation. The data can be arranged from the fastest mean Response Time to the slowest using the `arrange()` function:
@@ -332,7 +331,7 @@ The intercept now corresponds to the adjusted mean for the 'Normal' group. We ca
 
 For our final question, let's have a look at the experiment we've been given and read in our data:
 
-> <font size="3"> We have 148 participants in a 2 x 2 repeated measures design. We are interested in whether people respond differently to a target image following a prime image when we manipulate the image to be either positive or negative in valence. Two independent variables were manipulated within-participants in a fully factorial design; prime image with two levels (positive and negative), and target image with two levels (positive and negative). The time it took for participants to respond to the image, which was taken as a measure of reaction time in milliseconds, served as the dependent variable. </font>
+> <font size="3"> We have 148 participants in a 2 x 2 repeated measures design. We are interested in whether people respond differently to a target image following a prime image when we manipulate the image to be either positive or negative in valence. Two independent variables were manipulated within-participants in a fully factorial design; Prime Valence with two levels (Positive and Negative), and Target Valence with two levels (Positive and Negative). The time it took for participants to respond to the image, which was taken as a measure of reaction time in milliseconds, served as the dependent variable. </font>
 
 ```{r, message=FALSE}
 raw_data_3 <- read_csv("assignment_2_dataset_3.csv")
@@ -352,7 +351,7 @@ longer_data <- raw_data_3 %>%
 head(longer_data)
 ```
 
-Our variables and conditions are still not labelled meaningfully - we can rename them using the `recode()` function. We also need to separate our 'Condition' variable and name them according to our independent variables so our tibble reflects the 2 x 2 structure of the experiment. The `separate()` function allows us to split 'Prime' and 'Target' into two different factors. Finally, we'll recode our IVs as factors:
+Our variables and conditions are still not labelled meaningfully - we can rename them using the `recode()` function. We also need to separate our 'Condition' variable and name them according to our independent variables so our tibble reflects the 2 x 2 structure of the experiment. The `separate()` function allows us to split 'Prime Valence' and 'Target Valence' into two different factors. Finally, we'll recode our experimental variables as factors:
 
 ```{r}
 q3_data_tidied <- longer_data %>% 
@@ -368,7 +367,7 @@ head(q3_data_tidied)
 
 ## Data Summarising
 
-Let's generate some summary statistics and arrange the data from the fastest mean reaction time to the slowest. We need to specify our two grouping variables in the `group()` function call. I've mapped the output to a variable I've called `descriptive_stats` for later use in my visualisation.
+Let's generate some summary statistics and arrange the data from the fastest mean Reaction Time to the slowest. We need to specify our two grouping variables in the `group()` function call. I've mapped the output to a variable I've called `descriptive_stats` for later use in my visualisation.
 
 ```{r, message=FALSE}
 descriptive_stats <- q3_data_tidied %>% 
@@ -378,7 +377,7 @@ descriptive_stats <- q3_data_tidied %>%
 head(descriptive_stats)
 ```
 
-Looking at the tibble, it seems like participants were quickest at identifying the image when the prime valence was congruent with the target valence. As before, our output has not generated any missing data, so no need to run the `vis_miss()` function. Let's generate some data visualisations next.
+Looking at the tibble, it seems like participants were quickest at identifying the image when the prime valence was congruent with the target valence. As before, our output has not returned any NA results, so no need to run the `vis_miss()` function. Let's generate some data visualisations next.
 
 ## Data Visualisations
 
@@ -402,7 +401,7 @@ q3_data_tidied %>%
   theme(text = element_text(family = "lato", size = 25))
 ```
 
-In this visualisation, I have plotted our 'Prime' condition along the x-axis and labelled them accordingly using the `scale_x_discrete()` function. I have also used the legend and an appropriate colour scheme to indicate which data represent our 'Target' condition. However, it is difficult to see any interactions in this visualisation - we'll need an interaction plot for this.
+In this visualisation, I have plotted our 'Prime' condition along the x-axis and labelled them accordingly using the `scale_x_discrete()` function. I have also used the legend and an appropriate colour scheme to indicate which data represent our 'Target Valence' condition. However, it is difficult to see any interactions in this visualisation - we'll need an interaction plot for this.
 
 First, we'll bring the legend closer to the lines by writing the labels of the lines directly behind the lines. To do this, we'll create a new dataset that includes the y-values of the points where both lines end. We also need the labels that will be at the end of the lines. For this we use the function `case_when()`.
 
@@ -414,7 +413,7 @@ labels <- descriptive_stats %>%
 head(labels)
 ```
 
-Using our `descriptive_stats` dataset, we can add the geom_text to our interaction plot and pass our dataset `labels` to the geom. Among the aesthetics, `geom_text()` includes the aesthetic label, which stands for the text we will add to the visualization. We've also scaled down the y-axis using the `scale_y_continuous()` function to visually increase the distance between the means, aiding interpretation.
+Using the `descriptive_stats` dataset we created earlier, we can add the geom_text to our interaction plot and pass our dataset `labels` to the geom. Among the aesthetics, `geom_text()` includes the aesthetic label, which stands for the text we will add to the visualization. We've also scaled down the y-axis using the `scale_y_continuous()` function to visually increase the distance between the means, aiding interpretation.
 
 ```{r}
 descriptive_stats %>%
@@ -435,18 +434,18 @@ descriptive_stats %>%
   theme(text = element_text(family = "lato", size = 25))
 ```
 
-We can see here that we have a crossover interaction as the polarity of the difference flips. The graph shows that Reaction Time was faster for positive prime images when the target was also positive. Likewise, Reaction Time was faster for negative prime images when the target was also negative. Due to our crossover interaction, it is unlikely that we'll have significant main effects of both Prime and Target factors, but a significant interaction effect is likely. Let's build an ANOVA model to test these predictions.
+We can see here that we have a crossover interaction as the polarity of the difference flips. The graph shows that Reaction Time was faster for positive prime images when the target image was also positive. Likewise, Reaction Time was faster for negative prime images when the target was also negative. Due to our crossover interaction, it is unlikely that we'll have significant main effects of both Prime and Target factors, but a significant interaction effect is likely. Let's build an ANOVA model to test these predictions.
 
 ## Building our ANOVA model
 
-The syntax is very similar to what we ran previously, although this time we need to specify our two experimental factors using the term Prime \* Target. This term corresponds to a main effect of Prime image, and a main effect of target image, plus the interaction between the two factors. Our factors are both repeated measures factors, so we also have to specify them in our random effect term in the same way.
+The syntax is very similar to what we ran previously, although this time we need to specify our two experimental factors using the term prime_valence \* target_valence. This term corresponds to a main effect of prime valence, and a main effect of target valence, plus the interaction between the two factors. Our variables are both repeated measures factors, so we also have to specify them in our random effect term in the same way.
 
 ```{r}
 factorial_anova <- aov_4(reaction_time ~ prime_valence * target_valence + (1 + target_valence * prime_valence | participant), data = q3_data_tidied)
 anova(factorial_anova)
 ```
 
-Just as we predicted from interpreting our interaction plot, we don't have a significant main effect of Prime or a significant main effect of Target. However, we do have a significant interaction between our two experimental variables. Let's conduct some pairwise comparisons to find out where the differences lie. We don't need to change the error correction judgement as only some of the comparisons have any theoretical meaning.
+Just as we predicted from interpreting our interaction plot, we don't have a significant main effect of Prime Valence or a significant main effect of Target Valence. However, we do have a significant interaction between our two experimental variables. Let's conduct some pairwise comparisons to find out where the differences lie. We don't need to change the error correction judgement as only some of the comparisons have any theoretical meaning.
 
 ```{r}
 emmeans(factorial_anova, pairwise ~ prime_valence * target_valence, adjust = "none")
@@ -457,11 +456,15 @@ In this output, we are interested in comparing Reaction Times to Negative Target
 -   `Negative Negative - Positive Negative`
 -   `Negative Positive - Positive Positive`
 
-Now that we know what our meaningful comparisons are, we can manually perform a Bonferroni correction test to correct for multiple comparisons. To do this, we multiple the corresponding *p*-values by 2 (which is the number of meaningful comparisons we have). We also need to put a maximum limit of 1 on our *p*-value, as *p* can never exceed 1. 
+Now that we know what our meaningful comparisons are, we can manually perform a Bonferroni correction test to correct for multiple comparisons. To do this, we multiple the corresponding *p*-values by 2 (which is the number of meaningful comparisons we have). We also need to put a maximum limit of 1 on our *p*-value, as *p* can never exceed 1.
+
+**Negative Negative - Positive Negative corrected *p*-value**
 
 ```{r}
 sum(0.0021*2)
 ```
+
+**Negative Positive - Positive Positive corrected *p*-value**
 
 ```{r}
 sum(0.0042*2)
@@ -469,6 +472,6 @@ sum(0.0042*2)
 
 For our first meaningful comparison, which is Reaction Time to Negative Targets when preceded by Negative vs. Positive Primes, we get a corrected *p*-value of .004. For our second meaningful comparison, which is Reaction Time to Positive Targets when preceded by Negative vs. Positive Primes, we get a corrected *p*-value of .008.
 
-We conducted a 2 (Prime: Positive vs. Negative) x 2 (Target: Positive vs. Negative) repeated measures ANOVA to investigate the influence of Context valence on reaction times to images of Positive or Negative valence. The ANOVA revealed no effect of Prime (*F* < 1), no effect of Target (*F* < 1), but an interaction between Prime and Target (*F*(1, 147) = 17.25, *p* < .001, ηG2 = .029).
+We conducted a 2 (Prime Valence: Positive vs. Negative) x 2 (Target Valence: Positive vs. Negative) repeated measures ANOVA to investigate the influence of Target Valence on reaction times when preceded by Positive or Negative Primes. The ANOVA revealed no effect of Prime Valence (*F* \< 1), no effect of Target Valence (*F* \< 1), but an interaction between Prime Valence and Target Valence (*F*(1, 147) = 17.25, *p* \< .001, ηG2 = .029).
 
 The interaction was interpreted by conducting Bonferroni-corrected pairwise comparisons. These comparisons revealed that the interaction was driven by Negative Targets being processed faster when preceded by Negative vs. Positive Primes (1,547 ms. vs. 1,567 ms., *t*(294) = 3.14, *p* = .004). The interaction was also driven by Positive Targets being processed faster when preceded by Negative vs. Positive Primes (1,563 ms. vs. 1,547 ms., *t*(294) = 2.91, *p* = .008).

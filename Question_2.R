@@ -29,7 +29,7 @@ q2_data_tidied %>%
   geom_smooth(aes(x = caffeine, y = response_time), inherit.aes = FALSE,
               method = "lm", se = FALSE) +
   geom_point(size = 1.5, position = position_jitter(width = 0.08, seed = 42)) +
-  theme_minimal() +
+  theme_fivethirtyeight() +
   labs(x = "Cups of coffee",
        y = "Response Time (ms)",
        colour = "Visual Quality") +
@@ -37,7 +37,8 @@ q2_data_tidied %>%
                      limits = c(950, 1075)) +
   scale_x_discrete(breaks = seq(0, 6, by = 1),
                    limits = seq(0, 6))+
-  theme(text = element_text(family = "lato", size = 25))
+  theme(text = element_text(family = "lato", size = 25),
+        legend.position = "right")
 
 q2_data_tidied %>%
   mutate(visual_quality = fct_relevel(visual_quality, "Normal", "Degraded")) %>% 
@@ -50,7 +51,8 @@ q2_data_tidied %>%
        colour = "Visual Quality") +
   scale_y_continuous(breaks = seq(950, 1075, by = 25),
                      limits = c(950, 1075)) +
-  theme(text = element_text(family = "lato", size = 13))
+  theme(text = element_text(family = "lato", size = 13),
+        legend.position = "right")
 
 # Doesn't look like there is much of a relationship between caffeine and response time
 
