@@ -20,7 +20,7 @@ For this assignment, we have been provided with three different datasets. Using 
 -   Wrangle and tidy the data
 -   Summarise the data
 -   Visualise the data
--   Building and interpretting appropriate analyses
+-   Build and interpret appropriate analyses
 
 ## Packages
 
@@ -417,7 +417,7 @@ labels <- descriptive_stats %>%
 head(labels)
 ```
 
-Using our `descriptive_stats` dataset, we can add the geom_text to our interaction plot and pass our dataset `labels` to the geom. Among the aesthetics, `geom_text()` includes the aesthetic label, which stands for the text we will add to the visualization. We've also scaled down the y-axis using the `scale_y_continuous()` function to visually increase the distance between the means, aiding interpretation. 
+Using our `descriptive_stats` dataset, we can add the geom_text to our interaction plot and pass our dataset `labels` to the geom. Among the aesthetics, `geom_text()` includes the aesthetic label, which stands for the text we will add to the visualization. We've also scaled down the y-axis using the `scale_y_continuous()` function to visually increase the distance between the means, aiding interpretation.
 
 ```{r}
 descriptive_stats %>%
@@ -442,3 +442,38 @@ We can see here that we have a crossover interaction as the polarity of the diff
 
 ## Building our ANOVA model
 
+The syntax is very similar to our previous ANOVAS, although there are now two experimental factors which we need to appropriately specify using `aov_4()`. We'll write the term 'Prime \* Target' which corresponds to our two main effects, plus the interaction effect.
+
+The syntax is very similar to what we ran previously, although this time we need to specify our two experimental factors as, using the term Prime \* Target. This term corresponds to a main effect of Prime image, and a main effect of target image, plus the interaction between the two factors. Our factors are both repeated measures factors, we also have to specify them in our random effect term in the same way.
+
+```{r}
+factorial_anova <- aov_4(RT ~ Prime * Target + (1 + Target * Prime | participant), data = q3_data_tidied)
+anova(factorial_anova)
+```
+
+Just as we predicted from interpreting our interaction plot, we don't have a significant main effect of Prime or a significant main effect of Target. However, we do have a significant interaction between our two experimental variables. Let's conduct some pairwise comparisons to find out where the differences lie. We don't need to change the error correction judgement as only some of the comparisons have any theoretical meaning.
+
+```{r}
+emmeans(factorial_anova, pairwise ~ Prime * Target, adjust = "none")
+```
+
+In this output, we are interested in comparing Reaction Times to Negative Targets preceded by Negative vs. Positive Primes. We are also interested in comparing Reaction Times to Positive Targets preceded by Negative vs. Positive Primes. Therefore, the key comparisons are:
+
+-   `Negative Negative - Positive Negative`
+-   `Negative Positive - Positive Positive`
+
+Now that we know our meaningful comparisons, we can manually perform a Bonferroni correction test to correct for multiple comparisons. To do this, we multiple the corresponding *p*-values by 2 (which is the number of meaningful comparisons we have). We also need to put a maximum limit of 1 on our *p*-value, as *p* can never exceed 1. 
+
+```{r}
+sum(0.0021*2)
+```
+
+```{r}
+sum(0.0042*2)
+```
+
+For our first meaningful comparison, which is Reaction Time to Negative Targets when preceded by Negative vs. Positive Primes, we get a corrected *p*-value of .004. For our second meaningful comparison, which is Reaction Time to Positive Targets when preceded by Negative vs. Positive Primes, we get a corrected *p*-value of .008.
+
+We conducted a 2 (Prime: Positive vs. Negative) x 2 (Target: Positive vs. Negative) repeated measures ANOVA to investigate the influence of Context valence on reaction times to images of Positive or Negative valence. The ANOVA revealed no effect of Prime (*F* < 1), no effect of Target (*F* < 1), but an interaction between Prime and Target (*F*(1, 147) = 17.25, *p* < .001, ηG2 = .029).
+
+The interaction was interpreted by conducting Bonferroni-corrected pairwise companions. These comparisons revealed that the interaction was driven by Negative Targets being processed faster when preceded by Negative vs. Positive Primes (1,574 ms. vs. 1,567 ms., *t*(292) = 3.08, p = .0064). The interaction was also driven by Positive Targets being processed faster when preceded by Negative vs. Positive Primes (1,563 ms. vs. 1,547 ms., *t*(292) = 2.908, *p* = .008).

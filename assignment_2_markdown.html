@@ -695,6 +695,51 @@ head(labels)</code></pre>
 </div>
 <div id="building-our-anova-model-1" class="section level2">
 <h2>Building our ANOVA model</h2>
+<p>The syntax is very similar to our previous ANOVAS, although there are now two experimental factors which we need to appropriately specify using <code>aov_4()</code>. We’ll write the term ‘Prime * Target’ which corresponds to our two main effects, plus the interaction effect.</p>
+<p>The syntax is very similar to what we ran previously, although this time we need to specify our two experimental factors as, using the term Prime * Target. This term corresponds to a main effect of Prime image, and a main effect of target image, plus the interaction between the two factors. Our factors are both repeated measures factors, we also have to specify them in our random effect term in the same way.</p>
+<pre class="r"><code>factorial_anova &lt;- aov_4(RT ~ Prime * Target + (1 + Target * Prime | participant), data = q3_data_tidied)
+anova(factorial_anova)</code></pre>
+<pre><code>## Anova Table (Type 3 tests)
+## 
+## Response: RT
+##              num Df den Df    MSE       F       ges    Pr(&gt;F)    
+## Target            1    147 2730.5  0.2375 0.0004315    0.6267    
+## Prime             1    147 2337.5  0.3157 0.0004908    0.5751    
+## Target:Prime      1    147 2626.3 17.2541 0.0292770 5.523e-05 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>Just as we predicted from interpreting our interaction plot, we don’t have a significant main effect of Prime or a significant main effect of Target. However, we do have a significant interaction between our two experimental variables. Let’s conduct some pairwise comparisons to find out where the differences lie. We don’t need to change the error correction judgement as only some of the comparisons have any theoretical meaning.</p>
+<pre class="r"><code>emmeans(factorial_anova, pairwise ~ Prime * Target, adjust = &quot;none&quot;)</code></pre>
+<pre><code>## $emmeans
+##  Prime    Target   emmean    SE  df lower.CL upper.CL
+##  Negative Negative   1547 4.304 147     1539     1556
+##  Positive Negative   1567 4.439 147     1558     1576
+##  Negative Positive   1563 4.151 147     1554     1571
+##  Positive Positive   1547 3.689 147     1540     1555
+## 
+## Confidence level used: 0.95 
+## 
+## $contrasts
+##  contrast                              estimate   SE  df t.ratio p.value
+##  Negative Negative - Positive Negative  -19.731 6.29 147  -3.138  0.0021
+##  Negative Negative - Negative Positive  -15.405 5.98 147  -2.577  0.0110
+##  Negative Negative - Positive Positive   -0.139 5.62 147  -0.025  0.9802
+##  Positive Negative - Negative Positive    4.326 6.08 147   0.712  0.4776
+##  Positive Negative - Positive Positive   19.591 6.05 147   3.236  0.0015
+##  Negative Positive - Positive Positive   15.265 5.25 147   2.908  0.0042</code></pre>
+<p>In this output, we are interested in comparing Reaction Times to Negative Targets preceded by Negative vs. Positive Primes. We are also interested in comparing Reaction Times to Positive Targets preceded by Negative vs. Positive Primes. Therefore, the key comparisons are:</p>
+<ul>
+<li><code>Negative Negative - Positive Negative</code></li>
+<li><code>Negative Positive - Positive Positive</code></li>
+</ul>
+<p>Now that we know our meaningful comparisons, we can manually perform a Bonferroni correction test to correct for multiple comparisons. To do this, we multiple the corresponding <em>p</em>-values by 2 (which is the number of meaningful comparisons we have). We also need to put a maximum limit of 1 on our <em>p</em>-value, as <em>p</em> can never exceed 1.</p>
+<pre class="r"><code>sum(0.0021*2)</code></pre>
+<pre><code>## [1] 0.0042</code></pre>
+<pre class="r"><code>sum(0.0042*2)</code></pre>
+<pre><code>## [1] 0.0084</code></pre>
+<p>For our first meaningful comparison, which is Reaction Time to Negative Targets when preceded by Negative vs. Positive Primes, we get a corrected <em>p</em>-value of .004. For our second meaningful comparison, which is Reaction Time to Positive Targets when preceded by Negative vs. Positive Primes, we get a corrected <em>p</em>-value of .008.</p>
+<p>We conducted a 2 (Prime: Positive vs. Negative) x 2 (Target: Positive vs. Negative) repeated measures ANOVA to investigate the influence of Context valence on reaction times to images of Positive or Negative valence. The ANOVA revealed no effect of Prime (<em>F</em> &lt; 1), no effect of Target (<em>F</em> &lt; 1), but an interaction between Prime and Target (<em>F</em>(1, 147) = 17.25, <em>p</em> &lt; .001, ηG2 = .029).</p>
+<p>The interaction was interpreted by conducting Bonferroni-corrected pairwise companions. These comparisons revealed that the interaction was driven by Negative Targets being processed faster when preceded by Negative vs. Positive Primes (1,574 ms. vs. 1,567 ms., <em>t</em>(292) = 3.08, p = .0064). The interaction was also driven by Positive Targets being processed faster when preceded by Negative vs. Positive Primes (1,563 ms. vs. 1,547 ms., <em>t</em>(292) = 2.908, <em>p</em> = .008).</p>
 </div>
 </div>
 
