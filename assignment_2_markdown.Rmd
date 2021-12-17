@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Overview
 
-For this assignment, we have been provided with three different datasets. Using the knowledge we have gained from the workshops combined with wider reading, I will:
+For this assignment, we have been provided with three different datasets. Using the knowledge we have gained from the workshops combined with further reading and wider resources, I will:
 
 -   Wrangle and tidy the data
 -   Summarise the data
@@ -35,13 +35,13 @@ library(visdat)
 library(ggthemes)
 ```
 
-The `{tidyverse}` package contains a collection of open source R packages that gives us access to a variety of useful functions and commands for data wrangling and visualisation. The `{showtext}` package enables us to load in, and use over 1291 fonts for our data visualisations from [Google Fonts](https://fonts.google.com/), whilst `{ggtheme}` contains extra themes for our plots. The `{afex}`and`{emmeans}` packages will allow us to build ANOVA models and perform post-hoc analyses, respectively. We'll be using the `{afex]` package instead of the `{aov]` function in base R as it allows us to build ANOVA models that will work for our experimental designs, as well as using type III sums of squares by default. Finally, `{visdat}` will help us to spot any missing data in our datasets.
+The `{tidyverse}` package contains a collection of open source R packages that gives us access to a variety of useful functions and commands for data wrangling and visualisation. The `{showtext}` package enables us to load in and use over 1291 fonts from [Google Fonts](https://fonts.google.com/) for our data visualisations, whilst `{ggthemes}` contains extra themes for our plots. The `{afex}`and`{emmeans}` packages will allow us to build ANOVA models and perform post-hoc analyses, respectively. We'll be using the `{afex]` package instead of the `aov()` function in base R as it allows us to build ANOVA models that will work for our experimental designs, as well as using type III sums of squares by default. Finally, `{visdat}` will help us to spot any missing data in our datasets.
 
 # Question 1
 
-Let's read in our data and look over the question 1 information:
+Let's read in our data and look over the information for question 1:
 
-> <font size="3"> We have 96 participants in a between participants design where we are interested in the effect of visual quality of a word on response time to pronounce the word. Our experimental factor (visual quality) has 2 levels (Normal vs. Degraded). The time it took for participants to pronounce the word, which was taken as a measure of reaction time in milliseconds, served as the dependent variable. Let's read in our data: </font>
+> <font size="3"> We have 96 participants in a between participants design where we are interested in the effect of visual quality of a word on response time to pronounce the word. Our experimental factor (Visual Quality) has 2 levels (Normal vs. Degraded). The time it took for participants to pronounce the word, which was taken as a measure of reaction time in milliseconds, served as the dependent variable. Let's read in our data: </font>
 
 ```{r, message = FALSE}
 raw_data_1 <- read_csv("assignment_2_dataset_1.csv")
@@ -73,11 +73,11 @@ q1_data_tidied %>%
   arrange(mean)
 ```
 
-At a glance, it looks as though participants who were presented a word with normal visual quality were faster at pronouncing the word than those who were presented with a word with degraded quality. Since the output returned no NA results, we know that there is no missing data and therefore no reason to use the `vis_dat() function`. At this stage, we can create some data visualisations to better present our results.
+At a glance, it looks as though participants who were presented a word with normal visual quality were faster at pronouncing the word than those who were presented with a word with degraded quality. Since the output returned no NA results, we know that there is no missing data and therefore no reason to use the `vis_dat()` function. At this stage, we can create some data visualisations to better present our results.
 
 ## Data Visualisations
 
-In this visualisation, we're jittering the data points, meaning that every time we execute the code, the points will jitter to a different position. This implies that our code is not reproducible, because we don't know the seed that R will use to generate the sequence. By setting the seed using the `set.seed()` function, we can ensure that the output will be the same every time it is run. I set the seed to the number 42 for its reference to Hitch Hikers Guide to the Galaxy...
+In this visualisation, we're jittering the data points, meaning that every time we execute the code, the points will jitter to a different position. This implies that our code is not reproducible, because we don't know the seed that R will use to generate the sequence. By setting the seed using the `set.seed()` function, we can ensure that the output will be the same every time it is run. I set the seed to 42 for its reference to Hitch Hikers Guide to the Galaxy...
 
 ```{r}
 set.seed(42)
@@ -111,7 +111,7 @@ q1_data_tidied %>%
 
 ## Building our ANOVA Model
 
-Let's now build our model using the `aov_4()` function in the `{afex}` package. Within this package, the syntax for ANOVA models is: `aov_4(DV ~ IV + (1 | participant), data = q1_data_tidied)`. The `~` symbol translates to 'predicted by', and takes into account our random effect. We need to specify what data we are using in our model using `data = q1_data_tidied`. Finally, we map the output of the ANOVA result onto a variable I've called `between_anova`. This means that the ANOVA results will be stored in this variable and will allow us to access them later.
+Let's now build our model using the `aov_4()` function in the `{afex}` package. Within this package, the syntax for ANOVA models is: `aov_4(DV ~ IV + (1 | participant), data = q1_data_tidied)`. The `~` symbol translates to 'predicted by', and the term `(1 | participant)` takes into account our random effect. We need to specify what data we are using in our model using `data = q1_data_tidied`. Finally, we map the output of the ANOVA result onto a variable I've called `between_anova`. This means that the ANOVA results will be stored in this variable and will allow us to access them later.
 
 ```{r, message=FALSE, warning = FALSE}
 between_anova <- aov_4(response_time ~ visual_quality + (1 | participant), data = q1_data_tidied)
@@ -131,7 +131,7 @@ We can see that there is an effect in our model - the *p*-value is pretty small,
 emmeans(between_anova, pairwise ~ visual_quality)
 ```
 
-An independent one-way ANOVA revealed a significant difference between IV level means, *F*(1,94) = 15.78, *p* \< .001, generalised η2 = .14. Tukey comparisons revealed that the normal visual quality group performed significantly better than the degraded visual quality group (*p* \< .001)
+An independent one-way ANOVA revealed a significant difference between IV level means, *F*(1,94) = 15.78, *p* \< .001, generalised η2 = .14. Tukey comparisons revealed that the normal visual quality group pronounced the words significantly faster than the degraded visual quality group (*p* \< .001)
 
 In other words, participants were faster at pronouncing a word when the word was visually normal, compared to when the word was visually degraded.
 
@@ -139,7 +139,7 @@ In other words, participants were faster at pronouncing a word when the word was
 
 First, we should read in our data and look over some of the characteristics of question 2:
 
-> <font size="3"> We have 96 participants in a between participants design where we are interested in the effect of visual quality of a word on response time to pronounce the word. We are also interested in whether caffeine consumption will contribute to any of the variance. Our experimental factor (Visual Quality) has 2 levels. These are Normal vs. Degraded, and Response Time is our DV measured on a continuous scale. Caffeine Consumption is our covariate and has three levels - 1 cup, 2 cups, and 3 cups. We'll next read in our data: </font>
+> <font size="3"> We have 96 participants in a between participants design where we are interested in the effect of visual quality of a word on response time to pronounce the word. We are also interested in whether caffeine consumption will contribute to any of the variance. Our experimental factor (Visual Quality) has 2 levels. These are Normal vs. Degraded, and Response Time is our DV measured on a continuous scale. Caffeine Consumption is our covariate and was measured by cups of coffee consumed. We'll next read in our data: </font>
 
 ```{r, message=FALSE}
 raw_data_2 <- read_csv("assignment_2_dataset_2.csv")
@@ -223,7 +223,7 @@ We first need to use dummy (treatment) data for the levels of our experimental f
 contrasts(q2_data_tidied$visual_quality)
 ```
 
-As it currently stands, our 'Degraded' condition is set at our reference level (0). However, it makes more sense that our 'Normal' group be the reference level, as we want it to correspond to the intercept of our linear model. By default, R will generate a contrast matrix in alphabetical order, so we need to tell it otherwise. Similar to what we did in our visualisations, we can code the 'Normal' group as '0' using the `fct_relevel()` function:
+As it currently stands, our 'Degraded' condition is set at our reference level (0). However, it makes more sense that our 'Normal' group be the reference level, as we want it to correspond to the intercept of our linear model. By default, R will generate a contrast matrix in alphabetical order, so we need to tell it otherwise. Similar to what we did in our visualisations, we can code the 'Normal' group as 0 using the `fct_relevel()` function:
 
 ```{r, warning=FALSE}
 q2_data_tidied <- q2_data_tidied %>% 
@@ -232,7 +232,7 @@ q2_data_tidied <- q2_data_tidied %>%
 contrasts(q2_data_tidied$visual_quality)
 ```
 
-This is better - our 'Normal' condition is coded as '0' and now represents our intercept.
+This is better - our 'Normal' condition is coded as 0 and now represents our intercept.
 
 ### ANOVA as a Linear Model
 
@@ -240,7 +240,7 @@ To make sense of our ANOVA as a Linear Model, we can use the equation of the gen
 
 `Response Time = Intercept + β1(Degraded)`
 
-The intercept is our reference category (Normal) with coding (0), while the coding for 'Degraded' is (1). When we build our linear model, we'll be able to calculate the coefficients using this equation.
+The intercept is our reference category (Normal) with coding (0), while the coding for 'Degraded' is (1). When we build our linear model, we'll be able to calculate the coefficient using this equation.
 
 ```{r}
 anova_lm <- lm(response_time ~ visual_quality, data = q2_data_tidied)
@@ -252,7 +252,7 @@ Using the `lm()` function to build our linear model, we are asking for our DV, R
 anova_lm
 ```
 
-The intercept is 1002.22 (which is the mean for our 'Normal' group), and β1 is 18.09. We can now use this coefficient alongside our equation to calculate the averages for our 'Degraded' condition. I am using the `round()` function to round our intercept and coefficient means to the nearest integer, as this is what our `emmeans()` function does.
+The intercept is 1002.22 (which is the mean for our 'Normal' group), and β1 is 18.09. We can now use this coefficient alongside our equation to calculate the average for our 'Degraded' condition. I am using the `round()` function to round our intercept and coefficient means to the nearest integer, as this is what our `emmeans()` function does.
 
 ```{r}
 round(1002.22 + (18.09*1))

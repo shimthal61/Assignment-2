@@ -248,7 +248,7 @@ div.tocify {
 
 <div id="overview" class="section level1">
 <h1>Overview</h1>
-<p>For this assignment, we have been provided with three different datasets. Using the knowledge we have gained from the workshops combined with wider reading, I will:</p>
+<p>For this assignment, we have been provided with three different datasets. Using the knowledge we have gained from the workshops combined with further reading and wider resources, I will:</p>
 <ul>
 <li>Wrangle and tidy the data</li>
 <li>Summarise the data</li>
@@ -264,14 +264,14 @@ library(afex)
 library(emmeans)
 library(visdat)
 library(ggthemes)</code></pre>
-<p>The <code>{tidyverse}</code> package contains a collection of open source R packages that gives us access to a variety of useful functions and commands for data wrangling and visualisation. The <code>{showtext}</code> package enables us to load in, and use over 1291 fonts for our data visualisations from <a href="https://fonts.google.com/">Google Fonts</a>, whilst <code>{ggtheme}</code> contains extra themes for our plots. The <code>{afex}</code>and<code>{emmeans}</code> packages will allow us to build ANOVA models and perform post-hoc analyses, respectively. We’ll be using the <code>{afex]</code> package instead of the <code>{aov]</code> function in base R as it allows us to build ANOVA models that will work for our experimental designs, as well as using type III sums of squares by default. Finally, <code>{visdat}</code> will help us to spot any missing data in our datasets.</p>
+<p>The <code>{tidyverse}</code> package contains a collection of open source R packages that gives us access to a variety of useful functions and commands for data wrangling and visualisation. The <code>{showtext}</code> package enables us to load in and use over 1291 fonts from <a href="https://fonts.google.com/">Google Fonts</a> for our data visualisations, whilst <code>{ggthemes}</code> contains extra themes for our plots. The <code>{afex}</code>and<code>{emmeans}</code> packages will allow us to build ANOVA models and perform post-hoc analyses, respectively. We’ll be using the <code>{afex]</code> package instead of the <code>aov()</code> function in base R as it allows us to build ANOVA models that will work for our experimental designs, as well as using type III sums of squares by default. Finally, <code>{visdat}</code> will help us to spot any missing data in our datasets.</p>
 </div>
 </div>
 <div id="question-1" class="section level1">
 <h1>Question 1</h1>
-<p>Let’s read in our data and look over the question 1 information:</p>
+<p>Let’s read in our data and look over the information for question 1:</p>
 <blockquote>
-<p><font size="3"> We have 96 participants in a between participants design where we are interested in the effect of visual quality of a word on response time to pronounce the word. Our experimental factor (visual quality) has 2 levels (Normal vs. Degraded). The time it took for participants to pronounce the word, which was taken as a measure of reaction time in milliseconds, served as the dependent variable. Let’s read in our data: </font></p>
+<p><font size="3"> We have 96 participants in a between participants design where we are interested in the effect of visual quality of a word on response time to pronounce the word. Our experimental factor (Visual Quality) has 2 levels (Normal vs. Degraded). The time it took for participants to pronounce the word, which was taken as a measure of reaction time in milliseconds, served as the dependent variable. Let’s read in our data: </font></p>
 </blockquote>
 <pre class="r"><code>raw_data_1 &lt;- read_csv(&quot;assignment_2_dataset_1.csv&quot;)
 head(raw_data_1)</code></pre>
@@ -316,11 +316,11 @@ head(q1_data_tidied)</code></pre>
 ##   &lt;fct&gt;          &lt;dbl&gt; &lt;dbl&gt;
 ## 1 Normal         1002.  21.0
 ## 2 Degraded       1020.  23.5</code></pre>
-<p>At a glance, it looks as though participants who were presented a word with normal visual quality were faster at pronouncing the word than those who were presented with a word with degraded quality. Since the output returned no NA results, we know that there is no missing data and therefore no reason to use the <code>vis_dat() function</code>. At this stage, we can create some data visualisations to better present our results.</p>
+<p>At a glance, it looks as though participants who were presented a word with normal visual quality were faster at pronouncing the word than those who were presented with a word with degraded quality. Since the output returned no NA results, we know that there is no missing data and therefore no reason to use the <code>vis_dat()</code> function. At this stage, we can create some data visualisations to better present our results.</p>
 </div>
 <div id="data-visualisations" class="section level2">
 <h2>Data Visualisations</h2>
-<p>In this visualisation, we’re jittering the data points, meaning that every time we execute the code, the points will jitter to a different position. This implies that our code is not reproducible, because we don’t know the seed that R will use to generate the sequence. By setting the seed using the <code>set.seed()</code> function, we can ensure that the output will be the same every time it is run. I set the seed to the number 42 for its reference to Hitch Hikers Guide to the Galaxy…</p>
+<p>In this visualisation, we’re jittering the data points, meaning that every time we execute the code, the points will jitter to a different position. This implies that our code is not reproducible, because we don’t know the seed that R will use to generate the sequence. By setting the seed using the <code>set.seed()</code> function, we can ensure that the output will be the same every time it is run. I set the seed to 42 for its reference to Hitch Hikers Guide to the Galaxy…</p>
 <pre class="r"><code>set.seed(42)</code></pre>
 <p>To be able to manipulate the font family, we first need to download a font from <a href="https://fonts.google.com">Google Fonts</a>. I decided to pick the ‘Lato’ Font, as its larger character height lends itself to easier readability at small sizes. Let’s read this font into R using the <code>font_add_()</code> command and tell <code>{showtext}</code> to automatically render the text:</p>
 <pre class="r"><code>font_add(&quot;lato&quot;, regular = &quot;lato-regular.ttf&quot;)
@@ -344,7 +344,7 @@ showtext_auto()</code></pre>
 </div>
 <div id="building-our-anova-model" class="section level2">
 <h2>Building our ANOVA Model</h2>
-<p>Let’s now build our model using the <code>aov_4()</code> function in the <code>{afex}</code> package. Within this package, the syntax for ANOVA models is: <code>aov_4(DV ~ IV + (1 | participant), data = q1_data_tidied)</code>. The <code>~</code> symbol translates to ‘predicted by’, and takes into account our random effect. We need to specify what data we are using in our model using <code>data = q1_data_tidied</code>. Finally, we map the output of the ANOVA result onto a variable I’ve called <code>between_anova</code>. This means that the ANOVA results will be stored in this variable and will allow us to access them later.</p>
+<p>Let’s now build our model using the <code>aov_4()</code> function in the <code>{afex}</code> package. Within this package, the syntax for ANOVA models is: <code>aov_4(DV ~ IV + (1 | participant), data = q1_data_tidied)</code>. The <code>~</code> symbol translates to ‘predicted by’, and the term <code>(1 | participant)</code> takes into account our random effect. We need to specify what data we are using in our model using <code>data = q1_data_tidied</code>. Finally, we map the output of the ANOVA result onto a variable I’ve called <code>between_anova</code>. This means that the ANOVA results will be stored in this variable and will allow us to access them later.</p>
 <pre class="r"><code>between_anova &lt;- aov_4(response_time ~ visual_quality + (1 | participant), data = q1_data_tidied)</code></pre>
 </div>
 <div id="interpreting-the-model-output" class="section level2">
@@ -370,7 +370,7 @@ showtext_auto()</code></pre>
 ## $contrasts
 ##  contrast          estimate   SE df t.ratio p.value
 ##  Degraded - Normal     18.1 4.55 94   3.973  0.0001</code></pre>
-<p>An independent one-way ANOVA revealed a significant difference between IV level means, <em>F</em>(1,94) = 15.78, <em>p</em> &lt; .001, generalised η2 = .14. Tukey comparisons revealed that the normal visual quality group performed significantly better than the degraded visual quality group (<em>p</em> &lt; .001)</p>
+<p>An independent one-way ANOVA revealed a significant difference between IV level means, <em>F</em>(1,94) = 15.78, <em>p</em> &lt; .001, generalised η2 = .14. Tukey comparisons revealed that the normal visual quality group pronounced the words significantly faster than the degraded visual quality group (<em>p</em> &lt; .001)</p>
 <p>In other words, participants were faster at pronouncing a word when the word was visually normal, compared to when the word was visually degraded.</p>
 </div>
 </div>
@@ -378,7 +378,7 @@ showtext_auto()</code></pre>
 <h1>Question 2</h1>
 <p>First, we should read in our data and look over some of the characteristics of question 2:</p>
 <blockquote>
-<p><font size="3"> We have 96 participants in a between participants design where we are interested in the effect of visual quality of a word on response time to pronounce the word. We are also interested in whether caffeine consumption will contribute to any of the variance. Our experimental factor (Visual Quality) has 2 levels. These are Normal vs. Degraded, and Response Time is our DV measured on a continuous scale. Caffeine Consumption is our covariate and has three levels - 1 cup, 2 cups, and 3 cups. We’ll next read in our data: </font></p>
+<p><font size="3"> We have 96 participants in a between participants design where we are interested in the effect of visual quality of a word on response time to pronounce the word. We are also interested in whether caffeine consumption will contribute to any of the variance. Our experimental factor (Visual Quality) has 2 levels. These are Normal vs. Degraded, and Response Time is our DV measured on a continuous scale. Caffeine Consumption is our covariate and was measured by cups of coffee consumed. We’ll next read in our data: </font></p>
 </blockquote>
 <pre class="r"><code>raw_data_2 &lt;- read_csv(&quot;assignment_2_dataset_2.csv&quot;)
 head(raw_data_2)</code></pre>
@@ -483,7 +483,7 @@ anova(model_ancova)</code></pre>
 <pre><code>##          Normal
 ## Degraded      0
 ## Normal        1</code></pre>
-<p>As it currently stands, our ‘Degraded’ condition is set at our reference level (0). However, it makes more sense that our ‘Normal’ group be the reference level, as we want it to correspond to the intercept of our linear model. By default, R will generate a contrast matrix in alphabetical order, so we need to tell it otherwise. Similar to what we did in our visualisations, we can code the ‘Normal’ group as ‘0’ using the <code>fct_relevel()</code> function:</p>
+<p>As it currently stands, our ‘Degraded’ condition is set at our reference level (0). However, it makes more sense that our ‘Normal’ group be the reference level, as we want it to correspond to the intercept of our linear model. By default, R will generate a contrast matrix in alphabetical order, so we need to tell it otherwise. Similar to what we did in our visualisations, we can code the ‘Normal’ group as 0 using the <code>fct_relevel()</code> function:</p>
 <pre class="r"><code>q2_data_tidied &lt;- q2_data_tidied %&gt;% 
   mutate(visual_quality = fct_relevel(visual_quality,
                                       c(&quot;Normal&quot;, &quot;Degraded&quot;)))
@@ -491,13 +491,13 @@ contrasts(q2_data_tidied$visual_quality)</code></pre>
 <pre><code>##          Degraded
 ## Normal          0
 ## Degraded        1</code></pre>
-<p>This is better - our ‘Normal’ condition is coded as ‘0’ and now represents our intercept.</p>
+<p>This is better - our ‘Normal’ condition is coded as 0 and now represents our intercept.</p>
 </div>
 <div id="anova-as-a-linear-model" class="section level3">
 <h3>ANOVA as a Linear Model</h3>
 <p>To make sense of our ANOVA as a Linear Model, we can use the equation of the general linear model.</p>
 <p><code>Response Time = Intercept + β1(Degraded)</code></p>
-<p>The intercept is our reference category (Normal) with coding (0), while the coding for ‘Degraded’ is (1). When we build our linear model, we’ll be able to calculate the coefficients using this equation.</p>
+<p>The intercept is our reference category (Normal) with coding (0), while the coding for ‘Degraded’ is (1). When we build our linear model, we’ll be able to calculate the coefficient using this equation.</p>
 <pre class="r"><code>anova_lm &lt;- lm(response_time ~ visual_quality, data = q2_data_tidied)</code></pre>
 <p>Using the <code>lm()</code> function to build our linear model, we are asking for our DV, Response Time, to be predicted by our experimental factor, Visual Quality. Let’s now call for the output of our model, which I’ve mapped to a variable called <code>anova_lm</code>:</p>
 <pre class="r"><code>anova_lm</code></pre>
@@ -508,7 +508,7 @@ contrasts(q2_data_tidied$visual_quality)</code></pre>
 ## Coefficients:
 ##            (Intercept)  visual_qualityDegraded  
 ##                1002.22                   18.09</code></pre>
-<p>The intercept is 1002.22 (which is the mean for our ‘Normal’ group), and β1 is 18.09. We can now use this coefficient alongside our equation to calculate the averages for our ‘Degraded’ condition. I am using the <code>round()</code> function to round our intercept and coefficient means to the nearest integer, as this is what our <code>emmeans()</code> function does.</p>
+<p>The intercept is 1002.22 (which is the mean for our ‘Normal’ group), and β1 is 18.09. We can now use this coefficient alongside our equation to calculate the average for our ‘Degraded’ condition. I am using the <code>round()</code> function to round our intercept and coefficient means to the nearest integer, as this is what our <code>emmeans()</code> function does.</p>
 <pre class="r"><code>round(1002.22 + (18.09*1))</code></pre>
 <pre><code>## [1] 1020</code></pre>
 <p>This output is the same as the mean Response Time that we calculated earlier for our ‘Degraded’ condition. By building our linear model and using the appropriate coding scheme, we have been able to generate exactly the same means as our ANOVA. This illustrates how ANOVA is a special case of regression and uses the linear model.</p>
@@ -695,7 +695,7 @@ head(labels)</code></pre>
 </div>
 <div id="building-our-anova-model-1" class="section level2">
 <h2>Building our ANOVA model</h2>
-<p>The syntax is very similar to what we ran previously, although this time we need to specify our two experimental factors using the term prime_valence * target_valence. This term corresponds to a main effect of Prime image, and a main effect of target image, plus the interaction between the two factors. Our factors are both repeated measures factors, so we also have to specify them in our random effect term in the same way.</p>
+<p>The syntax is very similar to what we ran previously, although this time we need to specify our two experimental factors using the term prime_valence * target_valence. This term corresponds to a main effect of prime valence, and a main effect of target valence, plus the interaction between the two factors. Our variables are both repeated measures factors, so we also have to specify them in our random effect term in the same way.</p>
 <pre class="r"><code>factorial_anova &lt;- aov_4(reaction_time ~ prime_valence * target_valence + (1 + target_valence * prime_valence | participant), data = q3_data_tidied)
 anova(factorial_anova)</code></pre>
 <pre><code>## Anova Table (Type 3 tests)
@@ -711,7 +711,7 @@ anova(factorial_anova)</code></pre>
 ## target_valence:prime_valence ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<p>Just as we predicted from interpreting our interaction plot, we don’t have a significant main effect of Prime or a significant main effect of Target. However, we do have a significant interaction between our two experimental variables. Let’s conduct some pairwise comparisons to find out where the differences lie. We don’t need to change the error correction judgement as only some of the comparisons have any theoretical meaning.</p>
+<p>Just as we predicted from interpreting our interaction plot, we don’t have a significant main effect of Prime Valence or a significant main effect of Target Valence. However, we do have a significant interaction between our two experimental variables. Let’s conduct some pairwise comparisons to find out where the differences lie. We don’t need to change the error correction judgement as only some of the comparisons have any theoretical meaning.</p>
 <pre class="r"><code>emmeans(factorial_anova, pairwise ~ prime_valence * target_valence, adjust = &quot;none&quot;)</code></pre>
 <pre><code>## $emmeans
 ##  prime_valence target_valence emmean    SE  df lower.CL upper.CL
@@ -736,12 +736,14 @@ anova(factorial_anova)</code></pre>
 <li><code>Negative Positive - Positive Positive</code></li>
 </ul>
 <p>Now that we know what our meaningful comparisons are, we can manually perform a Bonferroni correction test to correct for multiple comparisons. To do this, we multiple the corresponding <em>p</em>-values by 2 (which is the number of meaningful comparisons we have). We also need to put a maximum limit of 1 on our <em>p</em>-value, as <em>p</em> can never exceed 1.</p>
+<p><strong>Negative Negative - Positive Negative corrected <em>p</em>-value</strong></p>
 <pre class="r"><code>sum(0.0021*2)</code></pre>
 <pre><code>## [1] 0.0042</code></pre>
+<p><strong>Negative Positive - Positive Positive corrected <em>p</em>-value</strong></p>
 <pre class="r"><code>sum(0.0042*2)</code></pre>
 <pre><code>## [1] 0.0084</code></pre>
 <p>For our first meaningful comparison, which is Reaction Time to Negative Targets when preceded by Negative vs. Positive Primes, we get a corrected <em>p</em>-value of .004. For our second meaningful comparison, which is Reaction Time to Positive Targets when preceded by Negative vs. Positive Primes, we get a corrected <em>p</em>-value of .008.</p>
-<p>We conducted a 2 (Prime: Positive vs. Negative) x 2 (Target: Positive vs. Negative) repeated measures ANOVA to investigate the influence of Context valence on reaction times to images of Positive or Negative valence. The ANOVA revealed no effect of Prime (<em>F</em> &lt; 1), no effect of Target (<em>F</em> &lt; 1), but an interaction between Prime and Target (<em>F</em>(1, 147) = 17.25, <em>p</em> &lt; .001, ηG2 = .029).</p>
+<p>We conducted a 2 (Prime Valence: Positive vs. Negative) x 2 (Target Valence: Positive vs. Negative) repeated measures ANOVA to investigate the influence of Target Valence on reaction times when preceded by Positive or Negative Primes. The ANOVA revealed no effect of Prime Valence (<em>F</em> &lt; 1), no effect of Target Valence (<em>F</em> &lt; 1), but an interaction between Prime Valence and Target Valence (<em>F</em>(1, 147) = 17.25, <em>p</em> &lt; .001, ηG2 = .029).</p>
 <p>The interaction was interpreted by conducting Bonferroni-corrected pairwise comparisons. These comparisons revealed that the interaction was driven by Negative Targets being processed faster when preceded by Negative vs. Positive Primes (1,547 ms. vs. 1,567 ms., <em>t</em>(294) = 3.14, <em>p</em> = .004). The interaction was also driven by Positive Targets being processed faster when preceded by Negative vs. Positive Primes (1,563 ms. vs. 1,547 ms., <em>t</em>(294) = 2.91, <em>p</em> = .008).</p>
 </div>
 </div>
