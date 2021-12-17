@@ -6,9 +6,20 @@ str(raw_data_3)
 longer_data <- raw_data_3 %>% 
   pivot_longer(cols = c(positiveprime_positivetarget, positiveprime_negativetarget, negativeprime_positivetarget, negativeprime_negativetarget),
                names_to = "Condition",
-               values_to = "RT")
+               values_to = "reaction_time")
 
 head(longer_data)
+
+q3_data <- longer_data %>% 
+  mutate(Condition = recode(Condition,
+                            "positiveprime_positivetarget" = "Positive_Positive",
+                            "positiveprime_negativetarget" = "Positive_Negative",
+                            "negativeprime_positivetarget" = "Negative_Positive",
+                            "negativeprime_negativetarget" = "Negative_Negative")) %>% 
+  separate(col = "Condition", into = c("Prime_valence", "Target_valence"), sep = "_") %>% 
+  mutate(Prime_valence = factor(Prime_valence), Target_valence = factor(Target_valence))
+
+head(q3_data)
 
 q3_data <- longer_data %>% 
   mutate(Condition = recode(Condition,
@@ -16,8 +27,8 @@ q3_data <- longer_data %>%
          "positiveprime_negativetarget" = "Positive_Negative",
          "negativeprime_positivetarget" = "Negative_Positive",
          "negativeprime_negativetarget" = "Negative_Negative")) %>% 
-  separate(col = "Condition", into = c("Prime", "Target"), sep = "_") %>% 
-  mutate(Prime = factor(Prime), Target = factor(Target))
+  separate(col = "Condition", into = c("Prime_valence", "Target_valence"), sep = "_") %>% 
+  mutate(Prime = factor(Prime_valence), Target = factor(Target_valence))
 
 head(q3_data)
  

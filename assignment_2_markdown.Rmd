@@ -32,15 +32,16 @@ library(showtext)
 library(afex)
 library(emmeans)
 library(visdat)
+library(ggthemes)
 ```
 
-The `{tidyverse}` package contains a collection of open source R packages that gives us access to variety of useful functions and commands for data wrangling and visualisation. The `{showtext}` package enables us to load in, and use over 1291 fonts from [Google Fonts](https://fonts.google.com/) - useful for data visualisations. The `{afex}`and`{emmeans}` packages will allow us to build ANOVA models and perform and post-hoc analyses, respectively. We'll be using the `{afex]` package instead of the `{aov]` function in base R as it allows us to build ANOVA models that will work for our experimental designs, as well as using type III sums of squares by default. Finally, `{visdat}` will help us to spot any missing data in our datasets.
+The `{tidyverse}` package contains a collection of open source R packages that gives us access to a variety of useful functions and commands for data wrangling and visualisation. The `{showtext}` package enables us to load in, and use over 1291 fonts for our data visualisations from [Google Fonts](https://fonts.google.com/), whilst `{ggtheme}` contains extra themes for our plots. The `{afex}`and`{emmeans}` packages will allow us to build ANOVA models and perform post-hoc analyses, respectively. We'll be using the `{afex]` package instead of the `{aov]` function in base R as it allows us to build ANOVA models that will work for our experimental designs, as well as using type III sums of squares by default. Finally, `{visdat}` will help us to spot any missing data in our datasets.
 
 # Question 1
 
 Let's read in our data and look over the question 1 information:
 
-> <font size="3"> We have 96 participants in a between participants design where we are interested in the effect of visual quality of a word on response time to pronounce the word. Our experimental factor (visual quality) has 2 levels. These are Normal vs. Degraded, and Response Time is our DV measured on a continuous scale. Let's read in our data: </font>
+> <font size="3"> We have 96 participants in a between participants design where we are interested in the effect of visual quality of a word on response time to pronounce the word. Our experimental factor (visual quality) has 2 levels (Normal vs. Degraded). The time it took for participants to pronounce the word, which was taken as a measure of reaction time in milliseconds, served as the dependent variable. Let's read in our data: </font>
 
 ```{r, message = FALSE}
 raw_data_1 <- read_csv("assignment_2_dataset_1.csv")
@@ -49,7 +50,7 @@ head(raw_data_1)
 
 ## Data Wrangling
 
-Our Visual Quality variable is currently just named "condition" - let's change it using the `rename()` function. Within the `mutate()` argument, we can also modify it so it's coded as a factor. Finally, our conditions are not labelled meaningfully and could lead to confusion further down the line. We can recode them using the `recode` command:
+Our Visual Quality variable is currently just named "condition" - let's change it using the `rename()` function. Within the `mutate()` function, we can also modify it so it's coded as a factor. Finally, our conditions are not labelled meaningfully and could lead to confusion further down the line. We can recode them using the `recode` command:
 
 ```{r, message = FALSE}
 q1_data_tidied <- raw_data_1 %>%
@@ -61,17 +62,10 @@ q1_data_tidied <- raw_data_1 %>%
 head(q1_data_tidied)
 ```
 
-We can check to see if we have missing data somewhere in our dataset. Using the package `{visdat}`, we can visualise our dataset using the `vis_dat()` function, which in turn will let us know if we have any missing data:
-
-```{r}
-vis_miss(q1_data_tidied)
-```
-
-It looks like all the data is present - no need to use the `na.rm = TRUE` function. Let's move on to generating summary statistics.
 
 ## Data Summarising
 
-We'll first utilise the `group_by()` function to gather our visual-quality variable, then `summarise()` to create a new table comprising of response time mean and standard deviation. The data can be arranged from the fastest mean response time to the slowest using the `arrange()` function:
+We'll first utilise the `group_by()` function to gather our visual-quality variable, then `summarise()` to create a new table consisting of Response Time mean and standard deviation. The data can be arranged from the fastest mean Response Time to the slowest using the `arrange()` function:
 
 ```{r, message = FALSE}
 q1_data_tidied %>% 
@@ -80,24 +74,24 @@ q1_data_tidied %>%
   arrange(mean)
 ```
 
-At a glance, it looks as though participants who were presented a word with normal visual quality were faster at pronouncing the word than those who were presented with a word with degraded quality. At this stage, we can create some data visualisations to better convey our data.
+At a glance, it looks as though participants who were presented a word with normal visual quality were faster at pronouncing the word than those who were presented with a word with degraded quality. Since the output returned no NA results, we know that there is no missing data and therefore no reason to use the `vis_dat() function`. At this stage, we can create some data visualisations to better present our results.
 
 ## Data Visualisations
 
-In this visualisation, we're jittering the data points, meaning that every time we execute the code, the points will jitter to a different position. This implies that our code is not reproducible, because we don't know the seed that R will use to generate the sequence. By setting the seed using the `set.seed()` function, we can ensure that the output will be the same every time it is ran. I set the seed to the number 42 for its reference to Hitch Hikers Guide to the Galaxy...
+In this visualisation, we're jittering the data points, meaning that every time we execute the code, the points will jitter to a different position. This implies that our code is not reproducible, because we don't know the seed that R will use to generate the sequence. By setting the seed using the `set.seed()` function, we can ensure that the output will be the same every time it is run. I set the seed to the number 42 for its reference to Hitch Hikers Guide to the Galaxy...
 
 ```{r}
 set.seed(42)
 ```
 
-To be able to manipulate the font family, we first need to download a font family from [Google Fonts](https://fonts.google.com). I decided to pick the 'Lato' Font, as its larger character height lends itself to easier readibility at small sizes. Let's read this font into R using the `font_add_()` command and tell `{showtext}` to automatically render the text:
+To be able to manipulate the font family, we first need to download a font from [Google Fonts](https://fonts.google.com). I decided to pick the 'Lato' Font, as its larger character height lends itself to easier readibility at small sizes. Let's read this font into R using the `font_add_()` command and tell `{showtext}` to automatically render the text:
 
 ```{r}
 font_add("lato", regular = "lato-regular.ttf")
 showtext_auto()
 ```
 
-Next, we can build a visualisation by plotting the raw data points using the `geom_point` function, and the shape of the distribution for each condition using the `geom_violin()` function. By default, R will order the conditions alphabetically, so I used the `fct_relevel()` function to reorder the labels on the x-axis so that our 'normal' condition (the baseline) is on the left most side. We have also added some summary data in the form of the Mean and Confidence Intervals around the mean using the `stat_summary()` function. Finally, we can dictate the y-axis breaks within the `scale_y_continuous()` function, and change the text font and size within the `theme()` argument:
+Next, we can build a visualisation by plotting the raw data points using the `geom_point` function, and the shape of the distribution for each condition using the `geom_violin()` function. By default, R will order the conditions alphabetically, so I used the `fct_relevel()` function to reorder the labels on the x-axis so that our 'normal' condition (the baseline) is on the left hand side. We have also added some summary data in the form of the Mean and Confidence Intervals around the mean using the `stat_summary()` function. Finally, we can dictate the y-axis breaks within the `scale_y_continuous()` function, and change the text font and size within the `theme()` argument:
 
 ```{r, message = FALSE, warning = FALSE}
 q1_data_tidied %>% 
@@ -105,12 +99,12 @@ q1_data_tidied %>%
   ggplot(aes(x = visual_quality, y = response_time, colour = visual_quality)) +
   geom_violin(width = 0.3) +
   geom_point(alpha = 0.7, position = position_jitter(width = 0.08, seed = 42)) +
-  theme_minimal() +
+  theme_hc() +
   stat_summary(fun.data = "mean_cl_boot", colour = "black") +
   guides(colour = 'none') +
   scale_y_continuous(breaks = seq(925, 1075, by = 25),
                      limits = c(925, 1075)) +
-  labs(title = "Examining the effect of visual quality on response times",
+  labs(title = "Examining the effect of Visual Quality on Response Times",
        x = "Visual Quality",
        y = "Response Time (ms)") +
   theme(text = element_text(family = "Lato", size = 25))
@@ -162,7 +156,7 @@ q2_data_tidied <- raw_data_2 %>%
   rename(visual_quality = condition) %>% 
   mutate(visual_quality = recode(visual_quality,
                                  "condition_a" = "Normal",
-                                 "condition_b" = "Degreaded")) %>%
+                                 "condition_b" = "Degraded")) %>%
   mutate(visual_quality = factor(visual_quality))
 head(q2_data_tidied)
 ```
@@ -184,12 +178,14 @@ q2_data_tidied %>%
        colour = "Visual Quality") +
   scale_y_continuous(breaks = seq(950, 1075, by = 25),
                      limits = c(950, 1075)) +
+    scale_x_discrete(breaks = seq(0, 6, by = 1),
+                   limits = seq(0, 6)) +
   theme(text = element_text(family = "lato", size = 25))
 ```
 
 In this visualisation, I have added in a regression line that depicts the correlation between our covariant, Caffeine, and our DV, Response Time, using the `geom_smooth()` function. In our `geom_smooth` command, I was able to remove our experimental factor, Visual Quality, from the regression line by specifying what data to include using the `aes()` function, and for this data to supersede our graph aesthetics using `inherit.aes = FALSE`.
 
-We can see from our regression line that there isn't a particularly strong relationship between Caffeine and Response Time. Interestingly, our Caffeine consumption groups appear to be clustering in our data by Visual Quality, suggesting that that our covaraite may have an effect on the relationship between Visual Quality and Caffeine. Let's build an ANCOVA model to test this assumption.
+We can see from our regression line that there isn't a particularly strong relationship between Caffeine and Response Time. Interestingly, our Caffeine consumption groups appear to be clustering in our data by Visual Quality, suggesting that our covariate may have an effect on the relationship between Visual Quality and Caffeine. Let's build an ANCOVA model to test this assumption.
 
 ## Building our ANCOVA Model
 
@@ -257,13 +253,13 @@ Using the `lm()` function to build our linear model, we are asking for our DV, R
 anova_lm
 ```
 
-The intercept is 1002.22 (which is the mean for our 'Normal' group), and β1 is 18.09. We can now use this coefficiants alongside our equation to calcualate the averages for our 'Degraded' condition. I am using the `round()` function to round our intercept and coefficient means to the nearest integer, as this is what our `emmeans()` function does.
+The intercept is 1002.22 (which is the mean for our 'Normal' group), and β1 is 18.09. We can now use this coefficiant alongside our equation to calculate the averages for our 'Degraded' condition. I am using the `round()` function to round our intercept and coefficient means to the nearest integer, as this is what our `emmeans()` function does.
 
 ```{r}
 round(1002.22 + (18.09*1))
 ```
 
-This output is the same as the mean Response Time that we calculated earlier for out 'Degraded' condition. By building our linear model and using the appropiate coding scheme, we have been able to generate exactly the same means as our ANOVA. This illustrates how ANOVA is a special case of regression and uses the linear model.
+This output is the same as the mean Response Time that we calculated earlier for our 'Degraded' condition. By building our linear model and using the appropriate coding scheme, we have been able to generate exactly the same means as our ANOVA. This illustrates how ANOVA is a special case of regression and uses the linear model.
 
 ### ANCOVA as a Linear Model
 
@@ -296,20 +292,20 @@ round(1011.354 + (2.469*2.552083) + (-12.791*0))
 round(1011.354 + (2.469*2.552083) + (-12.791*1))
 ```
 
-As we predicted, these adjusted means are the same as the means we saw earlier when building out ANCOVA model, and again demonstrates how ANCOVA is a special case of regression.
+As we predicted, these adjusted means are the same as the means we saw earlier when building our ANCOVA model, and again demonstrates how ANCOVA is a special case of regression.
 
 ## Centering our Covariate
 
-We can improve the interpretation of the coefficients in our linear model by scaling and centering our covariates. With out mean centrerd on 0, this standadises the variable and eliminates the need to multiply the linear model coefficient for the covariant by the covariate's mean.
+We can improve the interpretation of the coefficients in our linear model by scaling and centering our covariates. With our mean centered on 0, this standardises the variable and eliminates the need to multiply the linear model coefficient for the covariant by the covariate's mean.
 
-By using the `scale()` function, we can create a scaled and centred version of our covariate in our data frame.
+By using the `scale()` function, we can create a scaled and centered version of our covariate in our data frame.
 
 ```{r}
 q2_scaled_data <- q2_data_tidied %>% 
   mutate(centred_caffeine = scale(caffeine))
 ```
 
-We can compare the uncentred to the centered covariate using the `plot()` function to see that the data is unchanged, other than the variable mean now being centered on zero and the distribution being scaled.
+We can compare the uncentered to the centered covariate using the `plot()` function to see that the data is unchanged, other than the variable mean now being centered on zero and the distribution being scaled.
 
 **Uncentered covariate**
 
@@ -336,7 +332,7 @@ The intercept now corresponds to the adjusted mean for the 'Normal' group. We ca
 
 For our final question, let's have a look at the experiment we've been given and read in our data:
 
-> <font size="3"> We have 148 participants in a 2 x 2 repeated measures design. We are interested in whether people respond differently to a target image following a prime image when we manipulate the image to be either positive or negative in valence. Two independent variables were manipulated within-participants in a fully factorial design; prime image with two levels (positive and negative) and target image with two levels (positive and negative). The time it took for participants to respond to the image, which was taken as a measure of reaction time, served as the dependent variable. </font>
+> <font size="3"> We have 148 participants in a 2 x 2 repeated measures design. We are interested in whether people respond differently to a target image following a prime image when we manipulate the image to be either positive or negative in valence. Two independent variables were manipulated within-participants in a fully factorial design; prime image with two levels (positive and negative), and target image with two levels (positive and negative). The time it took for participants to respond to the image, which was taken as a measure of reaction time in milliseconds, served as the dependent variable. </font>
 
 ```{r, message=FALSE}
 raw_data_3 <- read_csv("assignment_2_dataset_3.csv")
@@ -352,7 +348,7 @@ longer_data <- raw_data_3 %>%
   pivot_longer(cols = c(positiveprime_positivetarget, positiveprime_negativetarget,
                         negativeprime_positivetarget, negativeprime_negativetarget),
                names_to = "Condition",
-               values_to = "RT")
+               values_to = "reaction_time")
 head(longer_data)
 ```
 
@@ -361,22 +357,22 @@ Our variables and conditions are still not labelled meaningfully - we can rename
 ```{r}
 q3_data_tidied <- longer_data %>% 
   mutate(Condition = recode(Condition,
-         "positiveprime_positivetarget" = "Positive_Positive",
-         "positiveprime_negativetarget" = "Positive_Negative",
-         "negativeprime_positivetarget" = "Negative_Positive",
-         "negativeprime_negativetarget" = "Negative_Negative")) %>% 
-  separate(col = "Condition", into = c("Prime", "Target"), sep = "_") %>% 
-  mutate(Prime = factor(Prime), Target = factor(Target))
+                            "positiveprime_positivetarget" = "Positive_Positive",
+                            "positiveprime_negativetarget" = "Positive_Negative",
+                            "negativeprime_positivetarget" = "Negative_Positive",
+                            "negativeprime_negativetarget" = "Negative_Negative")) %>% 
+  separate(col = "Condition", into = c("prime_valence", "target_valence"), sep = "_") %>% 
+  mutate(prime_valence = factor(prime_valence), target_valence = factor(target_valence))
 head(q3_data_tidied)
 ```
 
 ## Data Summarising
 
-Let's generate some summary statistics and arrange the data from the fastest mean reaction time to the slowest. We need to specify our two grouping variables in the `group()` function call. You'll see later why I've mapped the code chunk to a new variable I'm calling `descriptive_stats`.
+Let's generate some summary statistics and arrange the data from the fastest mean reaction time to the slowest. We need to specify our two grouping variables in the `group()` function call. I've mapped the output to a variable I've called `descriptive_stats` for later use in my visualisation.
 
 ```{r, message=FALSE}
 descriptive_stats <- q3_data_tidied %>% 
-  group_by(Prime, Target) %>% 
+  group_by(prime_valence, target_valence) %>% 
   summarise(mean_RT = mean(RT), sd_RT = sd(RT)) %>% 
   arrange(mean_RT)
 head(descriptive_stats)
@@ -392,7 +388,7 @@ q3_data_tidied %>%
   geom_violin(width = .5) +
   geom_point(alpha = 0.5, position = position_jitter(width = 0.08, seed = 42)) +
   theme_minimal() +
-  labs(x = "Prime", 
+  labs(x = "Prime Valence", 
        y = "Reaction Time (ms)") +
   stat_summary(fun.data = "mean_cl_boot", colour = "black") +
   theme(text = element_text(size = 13)) +
@@ -434,7 +430,7 @@ descriptive_stats %>%
                      limits = c(1545, 1570)) +
   labs(x = "Prime",
        y = "Reaction Time (ms)") +
-  theme_minimal() +
+  theme_hc() +
   theme(text = element_text(family = "lato", size = 25))
 ```
 
@@ -442,9 +438,7 @@ We can see here that we have a crossover interaction as the polarity of the diff
 
 ## Building our ANOVA model
 
-The syntax is very similar to our previous ANOVAS, although there are now two experimental factors which we need to appropriately specify using `aov_4()`. We'll write the term 'Prime \* Target' which corresponds to our two main effects, plus the interaction effect.
-
-The syntax is very similar to what we ran previously, although this time we need to specify our two experimental factors as, using the term Prime \* Target. This term corresponds to a main effect of Prime image, and a main effect of target image, plus the interaction between the two factors. Our factors are both repeated measures factors, we also have to specify them in our random effect term in the same way.
+The syntax is very similar to what we ran previously, although this time we need to specify our two experimental factors using the term Prime \* Target. This term corresponds to a main effect of Prime image, and a main effect of target image, plus the interaction between the two factors. Our factors are both repeated measures factors, so we also have to specify them in our random effect term in the same way.
 
 ```{r}
 factorial_anova <- aov_4(RT ~ Prime * Target + (1 + Target * Prime | participant), data = q3_data_tidied)
@@ -457,12 +451,12 @@ Just as we predicted from interpreting our interaction plot, we don't have a sig
 emmeans(factorial_anova, pairwise ~ Prime * Target, adjust = "none")
 ```
 
-In this output, we are interested in comparing Reaction Times to Negative Targets preceded by Negative vs. Positive Primes. We are also interested in comparing Reaction Times to Positive Targets preceded by Negative vs. Positive Primes. Therefore, the key comparisons are:
+In this output, we are interested in comparing Reaction Times to Negative Targets preceded by Negative vs. Positive Primes. We are also interested in comparing Reaction Times to Positive Targets preceded by Negative vs. Positive Primes. Therefore, the two key comparisons are:
 
 -   `Negative Negative - Positive Negative`
 -   `Negative Positive - Positive Positive`
 
-Now that we know our meaningful comparisons, we can manually perform a Bonferroni correction test to correct for multiple comparisons. To do this, we multiple the corresponding *p*-values by 2 (which is the number of meaningful comparisons we have). We also need to put a maximum limit of 1 on our *p*-value, as *p* can never exceed 1. 
+Now that we know what our meaningful comparisons are, we can manually perform a Bonferroni correction test to correct for multiple comparisons. To do this, we multiple the corresponding *p*-values by 2 (which is the number of meaningful comparisons we have). We also need to put a maximum limit of 1 on our *p*-value, as *p* can never exceed 1. 
 
 ```{r}
 sum(0.0021*2)
@@ -476,4 +470,4 @@ For our first meaningful comparison, which is Reaction Time to Negative Targets 
 
 We conducted a 2 (Prime: Positive vs. Negative) x 2 (Target: Positive vs. Negative) repeated measures ANOVA to investigate the influence of Context valence on reaction times to images of Positive or Negative valence. The ANOVA revealed no effect of Prime (*F* < 1), no effect of Target (*F* < 1), but an interaction between Prime and Target (*F*(1, 147) = 17.25, *p* < .001, ηG2 = .029).
 
-The interaction was interpreted by conducting Bonferroni-corrected pairwise companions. These comparisons revealed that the interaction was driven by Negative Targets being processed faster when preceded by Negative vs. Positive Primes (1,574 ms. vs. 1,567 ms., *t*(292) = 3.08, p = .0064). The interaction was also driven by Positive Targets being processed faster when preceded by Negative vs. Positive Primes (1,563 ms. vs. 1,547 ms., *t*(292) = 2.908, *p* = .008).
+The interaction was interpreted by conducting Bonferroni-corrected pairwise comparisons. These comparisons revealed that the interaction was driven by Negative Targets being processed faster when preceded by Negative vs. Positive Primes (1,574 ms. vs. 1,567 ms., *t*(294) = 3.08, *p* = .0064). The interaction was also driven by Positive Targets being processed faster when preceded by Negative vs. Positive Primes (1,563 ms. vs. 1,547 ms., *t*(294) = 2.908, *p* = .008).

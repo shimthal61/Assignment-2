@@ -26,15 +26,18 @@ set.seed(42)
 q2_data_tidied %>%
   mutate(visual_quality = fct_relevel(visual_quality, "Normal", "Degraded")) %>% 
   ggplot(aes(x = caffeine, y = response_time, colour = visual_quality)) +
-  geom_smooth(aes(x = caffeine, y = response_time), method = "lm", se = FALSE, inherit.aes = FALSE) +
-  geom_point(size = 1.5, position = position_jitter(width = 0.1, seed = 42)) +
+  geom_smooth(aes(x = caffeine, y = response_time), inherit.aes = FALSE,
+              method = "lm", se = FALSE) +
+  geom_point(size = 1.5, position = position_jitter(width = 0.08, seed = 42)) +
   theme_minimal() +
   labs(x = "Cups of coffee",
        y = "Response Time (ms)",
        colour = "Visual Quality") +
   scale_y_continuous(breaks = seq(950, 1075, by = 25),
                      limits = c(950, 1075)) +
-  theme(text = element_text(family = "lato", size = 13))
+  scale_x_discrete(breaks = seq(0, 6, by = 1),
+                   limits = seq(0, 6))+
+  theme(text = element_text(family = "lato", size = 25))
 
 q2_data_tidied %>%
   mutate(visual_quality = fct_relevel(visual_quality, "Normal", "Degraded")) %>% 
