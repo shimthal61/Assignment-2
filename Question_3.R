@@ -60,7 +60,12 @@ q3_data %>%
   stat_summary(fun.data = "mean_cl_boot", colour = "black") +
   theme(text = element_text(size = 13)) +
   scale_y_continuous(breaks = seq(1400, 1750, by = 50),
-                     limits = c(1400, 1750))
+                     limits = c(1400, 1750)) +
+  scale_x_discrete(labels = c("Negative:Negative" = "Negative",
+                              "Negative:Positive" = "Negative",
+                              "Positive:Negative" = "Positive",
+                              "Positive:Positive" = "Positive")) +
+  theme(text = element_text(family = "lato", size = 20))
 
 #This plot is wank (DO NOT SAY WANK IN MARKDOWN) so better to make an interaction plot
 
@@ -86,7 +91,7 @@ descriptive_stats %>%
        y = "Reaction Time (ms)") +
   theme_minimal() 
 
-# Have a look at the video (timestamp: 6:05) to see what Andrew has to say about this interaction.
+# Have a look at the video (timestamp: 6:05, we were at 12:41) to see what Andrew has to say about this interaction.
 
 # This graph is much better - looks like there is an interaction. It looks like there might not be any significant
 # main effects, but there might be a sig. interaction effect??

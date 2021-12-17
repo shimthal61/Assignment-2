@@ -340,7 +340,7 @@ For our final question, let's have a look at the experiment we've been given and
 
 > <font size="3"> We have 148 participants in a 2 x 2 repeated measures design. We are interested in whether people respond faster to positive images following a positive prime (relative to following a negative prime), and faster to negative images following a negative prime (relative to following a positive prime). Two independent variables were manipulated within-participants in a fully factorial design; prime image with two levels (positive and negative) and target image with two levels (positive and negative). The time it took for participants to respond to the image, which was taken as a measure of reaction time, served as the dependent variable. </font>
 
-```{r}
+```{r, message=FALSE}
 raw_data_3 <- read_csv("assignment_2_dataset_3.csv")
 head(raw_data_3)
 ```
@@ -374,31 +374,70 @@ head(q3_data_tidied)
 
 ## Data Summarising
 
-Let's generate some summary statistics and arrange the data from the fastest mean reaction time to the slowest. We need to specify our two grouping variables in the `group()` function call.
+Let's generate some summary statistics and arrange the data from the fastest mean reaction time to the slowest. We need to specify our two grouping variables in the `group()` function call. You'll see later why I've mapped the code chunk to a new variable I'm calling `descriptive_stats`.
 
 ```{r}
-q3_data_tidied %>% 
+descriptive_stats <- q3_data_tidied %>% 
   group_by(Prime, Target) %>% 
   summarise(mean_RT = mean(RT), sd_RT = sd(RT)) %>% 
   arrange(mean_RT)
+head(descriptive_stats)
 ```
 
 Looking at the tibble, it seems like participants were quickest at identifying the image when the prime valence was congruent with the target valence. As before, our output has not generated any missing data, so no need to run the `vis_miss()` function. Let's generate some data visualisations next.
 
 ## Data Visualisations
 
-
-
 ```{r}
 q3_data_tidied %>% 
-  ggplot(aes(x = Prime:Target, y = RT, colour = Prime:Target)) +
+  ggplot(aes(x = Prime:Target, y = RT, colour = Target)) +
   geom_violin(width = .5) +
-  geom_point(alpha = 0.7, position = position_jitter(width = 0.08, seed = 42)) +
+  geom_point(alpha = 0.5, position = position_jitter(width = 0.08, seed = 42)) +
   theme_minimal() +
-  labs(x = y = "Reaction Time (ms)") +
-  guides(colour = 'none') +
+  labs(x = "Prime", 
+       y = "Reaction Time (ms)") +
+  stat_summary(fun.data = "mean_cl_boot", colour = "black") +
   theme(text = element_text(size = 13)) +
   scale_y_continuous(breaks = seq(1400, 1750, by = 50),
-                     limits = c(1400, 1750))
+                     limits = c(1400, 1750)) +
+  scale_x_discrete(labels = c("Negative:Negative" = "Negative",
+                              "Negative:Positive" = "Negative",
+                              "Positive:Negative" = "Positive",
+                              "Positive:Positive" = "Positive")) +
+  theme(text = element_text(family = "lato", size = 25))
 ```
 
+In this visualisation, I have plotted our 'Prime' condition along the x-axis and labelled them accordingly using the `scale_x_discrete()` function. I have also used the legend and an appropriate colour scheme to indicate which data represent our 'Target' condition. However, it is difficult to see any interactions in this visualisation - we'll need an interaction plot for this.
+
+First, we'll bring the legend closer to the lines by writing the labels of the lines directly behind the lines. To do this, we'll create a new dataset that includes the y-values of the points where both lines end. We also need the labels that will be at the end of the lines. For this we use the function `case_when()`
+
+```{r}
+labels <- descriptive_stats %>%
+  filter(Prime == "Positive") %>% 
+  mutate(label = case_when(Target == "Negative" ~ "Negative Target",
+                           Target == "Positive" ~ "Positive Target"))
+head(labels)
+```
+
+Now we can add the geom_text to our interaction plot and pass our dataset `labels` to the geom. Among the aesthetics, `geom_text()` includes the aesthetic label, which stands for the text we will add to the visualization. We've also scaled down the plot in the `scale_y_continuous()` function.
+
+```{r}
+descriptive_stats %>%
+  ggplot(aes(x = Prime, y = mean_RT)) + 
+  geom_line(size = 1.2, aes(group = Target, colour = Target)) +
+  geom_point(size = 2.6, aes(colour = Target), shape = 15) +
+  geom_text(size = 8, aes(label = label,
+                          colour = Target),
+            data = labels,
+            nudge_x = 0.22,
+            nudge_y = 1.2) +
+  guides(colour = 'none') +
+  scale_y_continuous(breaks = seq(1545, 1570, by = 5),
+                     limits = c(1545, 1570)) +
+  labs(x = "Prime",
+       y = "Reaction Time (ms)") +
+  theme_minimal() +
+  theme(text = element_text(family = "lato", size = 25))
+```
+
+We can see here that we have a crossover interaction, where we are unlikely to have a main effect of Prime Valence or Target Valence. However, the difference between the
