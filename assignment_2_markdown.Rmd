@@ -373,7 +373,7 @@ Let's generate some summary statistics and arrange the data from the fastest mea
 ```{r, message=FALSE}
 descriptive_stats <- q3_data_tidied %>% 
   group_by(prime_valence, target_valence) %>% 
-  summarise(mean_RT = mean(RT), sd_RT = sd(RT)) %>% 
+  summarise(mean_RT = mean(reaction_time), sd_RT = sd(reaction_time)) %>% 
   arrange(mean_RT)
 head(descriptive_stats)
 ```
@@ -384,12 +384,13 @@ Looking at the tibble, it seems like participants were quickest at identifying t
 
 ```{r}
 q3_data_tidied %>% 
-  ggplot(aes(x = Prime:Target, y = RT, colour = Target)) +
+  ggplot(aes(x = prime_valence:target_valence, y = reaction_time, colour = target_valence)) +
   geom_violin(width = .5) +
   geom_point(alpha = 0.5, position = position_jitter(width = 0.08, seed = 42)) +
   theme_minimal() +
   labs(x = "Prime Valence", 
-       y = "Reaction Time (ms)") +
+       y = "Reaction Time (ms)",
+       colour = "Target Valence") +
   stat_summary(fun.data = "mean_cl_boot", colour = "black") +
   theme(text = element_text(size = 13)) +
   scale_y_continuous(breaks = seq(1400, 1750, by = 50),
@@ -407,9 +408,9 @@ First, we'll bring the legend closer to the lines by writing the labels of the l
 
 ```{r}
 labels <- descriptive_stats %>%
-  filter(Prime == "Positive") %>% 
-  mutate(label = case_when(Target == "Negative" ~ "Negative Target",
-                           Target == "Positive" ~ "Positive Target"))
+  filter(prime_valence == "Positive") %>% 
+  mutate(label = case_when(target_valence == "Negative" ~ "Negative Target Valence",
+                           target_valence == "Positive" ~ "Positive Target Valence"))
 head(labels)
 ```
 
@@ -417,18 +418,18 @@ Using our `descriptive_stats` dataset, we can add the geom_text to our interacti
 
 ```{r}
 descriptive_stats %>%
-  ggplot(aes(x = Prime, y = mean_RT)) + 
-  geom_line(size = 1.2, aes(group = Target, colour = Target)) +
-  geom_point(size = 2.6, aes(colour = Target), shape = 15) +
+  ggplot(aes(x = prime_valence, y = mean_RT)) + 
+  geom_line(size = 1.2, aes(group = target_valence, colour = target_valence)) +
+  geom_point(size = 2.6, aes(colour = target_valence), shape = 15) +
   geom_text(size = 8, aes(label = label,
-                          colour = Target),
+                          colour = target_valence),
             data = labels,
-            nudge_x = 0.22,
-            nudge_y = 1.2) +
+            nudge_x = 0.28,
+            nudge_y = 1.3) +
   guides(colour = 'none') +
   scale_y_continuous(breaks = seq(1545, 1570, by = 5),
                      limits = c(1545, 1570)) +
-  labs(x = "Prime",
+  labs(x = "Prime Valence",
        y = "Reaction Time (ms)") +
   theme_hc() +
   theme(text = element_text(family = "lato", size = 25))
@@ -441,14 +442,14 @@ We can see here that we have a crossover interaction as the polarity of the diff
 The syntax is very similar to what we ran previously, although this time we need to specify our two experimental factors using the term Prime \* Target. This term corresponds to a main effect of Prime image, and a main effect of target image, plus the interaction between the two factors. Our factors are both repeated measures factors, so we also have to specify them in our random effect term in the same way.
 
 ```{r}
-factorial_anova <- aov_4(RT ~ Prime * Target + (1 + Target * Prime | participant), data = q3_data_tidied)
+factorial_anova <- aov_4(reaction_time ~ prime_valence * target_valence + (1 + target_valence * prime_valence | participant), data = q3_data_tidied)
 anova(factorial_anova)
 ```
 
 Just as we predicted from interpreting our interaction plot, we don't have a significant main effect of Prime or a significant main effect of Target. However, we do have a significant interaction between our two experimental variables. Let's conduct some pairwise comparisons to find out where the differences lie. We don't need to change the error correction judgement as only some of the comparisons have any theoretical meaning.
 
 ```{r}
-emmeans(factorial_anova, pairwise ~ Prime * Target, adjust = "none")
+emmeans(factorial_anova, pairwise ~ prime_valence * target_valence, adjust = "none")
 ```
 
 In this output, we are interested in comparing Reaction Times to Negative Targets preceded by Negative vs. Positive Primes. We are also interested in comparing Reaction Times to Positive Targets preceded by Negative vs. Positive Primes. Therefore, the two key comparisons are:
@@ -470,4 +471,4 @@ For our first meaningful comparison, which is Reaction Time to Negative Targets 
 
 We conducted a 2 (Prime: Positive vs. Negative) x 2 (Target: Positive vs. Negative) repeated measures ANOVA to investigate the influence of Context valence on reaction times to images of Positive or Negative valence. The ANOVA revealed no effect of Prime (*F* < 1), no effect of Target (*F* < 1), but an interaction between Prime and Target (*F*(1, 147) = 17.25, *p* < .001, ηG2 = .029).
 
-The interaction was interpreted by conducting Bonferroni-corrected pairwise comparisons. These comparisons revealed that the interaction was driven by Negative Targets being processed faster when preceded by Negative vs. Positive Primes (1,574 ms. vs. 1,567 ms., *t*(294) = 3.08, *p* = .0064). The interaction was also driven by Positive Targets being processed faster when preceded by Negative vs. Positive Primes (1,563 ms. vs. 1,547 ms., *t*(294) = 2.908, *p* = .008).
+The interaction was interpreted by conducting Bonferroni-corrected pairwise comparisons. These comparisons revealed that the interaction was driven by Negative Targets being processed faster when preceded by Negative vs. Positive Primes (1,574 ms. vs. 1,567 ms., *t*(294) = 3.14, *p* = .004). The interaction was also driven by Positive Targets being processed faster when preceded by Negative vs. Positive Primes (1,563 ms. vs. 1,547 ms., *t*(294) = 2.91, *p* = .008).
